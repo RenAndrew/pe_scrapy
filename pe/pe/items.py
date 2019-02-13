@@ -45,6 +45,16 @@ class PeSumoPrice(BoxingSpiderItem):		#塑料膜
 	def get_non_csv_columns():
 		return ['filename', 'to_update', 'target_table', 'target_column', 'src_column', 'crawl_time']
 
+class PeNongmoPrice(BoxingSpiderItem):		#农膜
+	product_name = scrapy.Field()
+	price_shandong = scrapy.Field()
+	price_jiangsu = scrapy.Field()
+	price_jingjin = scrapy.Field()
+
+	@staticmethod
+	def get_non_csv_columns():
+		return ['filename', 'to_update', 'target_table', 'target_column', 'src_column', 'crawl_time', 'name']
+
 
 CN_COLUMN_NAMES = {
     # basic
@@ -85,6 +95,11 @@ CN_COLUMN_NAMES = {
     'increase_to_last_week' : '较上周同期',
     'increase_to_last_month' : '较上月同期',
     'increase_to_last_year' : '较去年同期',
+
+    #农膜价格
+    'price_shandong' : '价格（山东）',
+    'price_jiangsu' : '价格（江苏）',
+    'price_jingjin' : '价格（京津）',
 }
 
 EN_COLUMN_NAMES = {value: key for key, value in CN_COLUMN_NAMES.items()}

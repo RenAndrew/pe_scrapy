@@ -31,8 +31,8 @@ class SeleniumLogin:
 			return self.cookieStr
 
 		#if the cookie in config file is no more valid, then relogin
-		# browser = webdriver.Chrome()
-		browser = webdriver.PhantomJS()
+		browser = webdriver.Chrome()
+		# browser = webdriver.PhantomJS()
 		browser.implicitly_wait(5)  # wait until the page is fully loaded.
 
 		browser.get(url)

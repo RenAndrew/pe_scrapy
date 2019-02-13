@@ -83,6 +83,17 @@ class SplashSpiderBase(SpiderBase):
          end
          """
 
+	fields_zn2en_mapping_dict = {
+			u'BOPP光膜' : 'BOPP_guangmo',
+			u'BOPET印刷膜' : 'BOPET_yinshuamo',
+			u'BOPA印刷级' : 'BOPA_yinshuaji',
+			u'CPP镀铝基材' : 'CPP_dulvjicai',
+			u'PE缠绕膜' : 'PE_chanraomo',
+			u'胶带母卷' : 'jiaodaimujuan',
+			u'VMPET' : 'VMPET',
+			u'VMCPP' : 'VMCPP',
+		}
+
 	def __init__(self):
 		autologin_tool = SeleniumLogin(os.getcwd() + '/')
 		autologin_tool.set_account(self.config['username'], self.config['password'])
@@ -187,18 +198,7 @@ class SplashSpiderBase(SpiderBase):
 		return text_without_tag.strip()
 
 	def _filename_according_to(self, product_name):
-		mapping_dict = {
-			u'BOPP光膜' : 'BOPP_guangmo',
-			u'BOPET印刷膜' : 'BOPET_yinshuamo',
-			u'BOPA印刷级' : 'BOPA_yinshuaji',
-			u'CPP镀铝基材' : 'CPP_dulvjicai',
-			u'PE缠绕膜' : 'PE_chanraomo',
-			u'胶带母卷' : 'jiaodaimujuan',
-			u'VMPET' : 'VMPET',
-			u'VMCPP' : 'VMCPP',
-		}
-
-		file_name = mapping_dict.get(product_name)
+		file_name = self.fields_zn2en_mapping_dict.get(product_name)
 		if file_name is None:
 			return 'dnot_known_name'
 		else:
@@ -237,6 +237,11 @@ class LinkProducer(object):
 			"orderby" : "true"
 		}
 
+		if meta.get("filter"):
+			self.filter = meta["filter"]
+		else:
+			self.filter = None
+
 		self.total_pages = self.next_news_page()
 		print ('Total pages: ' + str(self.total_pages) )
 
@@ -254,6 +259,9 @@ class LinkProducer(object):
 			for news_id in self.news_dict:
 				news_info = self.news_dict[news_id]
 				# print 'Yielding =======> ' + newsInfo['url']
+				if self._filter_by_field(news_info):
+					break
+				
 				self.record_visited(news_id, news_info)
 				yield news_info['url']
 
@@ -292,7 +300,7 @@ class LinkProducer(object):
 			ta = time.strptime(pub_time.split('.')[0], '%Y-%m-%dT%H:%M:%S')
 			pub_date = str(ta.tm_year) + '-' + str(ta.tm_mon) + '-' + str(ta.tm_mday)
 			sccid = news_item['SCCID'].encode('ascii')
-			class_name = news_item['ClassName'].encode('ascii')
+			class_name = news_item['ClassName'].encode('utf-8')
 
 			print ('ID: %d: %s | %s | %s' % (int(news_id), url, title, pub_date))
 
@@ -300,7 +308,8 @@ class LinkProducer(object):
 				"url" : url,
 				"title" : title,
 				"pubDate" : pub_date,
-				"className" : class_name
+				"className" : class_name,
+				"sccid" : sccid
 			}
 			
 			news_page_dict[news_id] = news_info
@@ -318,3 +327,21 @@ class LinkProducer(object):
 
 		with open(file_name, 'w+') as f:
 			f.write(visited_news_json)
+
+	def _filter_by_field(self, news_info):
+
+		if not self.filter:
+			return False
+
+		field_name = self.filter["field"]
+		field_value = news_info.get(field_name)
+		
+		if field_value is None:
+			print ('Field value is empty!')
+			return False
+
+		try:
+			is_been_filtered = self.filter["method"](field_value)
+			return is_been_filtered
+		except:
+			return False
