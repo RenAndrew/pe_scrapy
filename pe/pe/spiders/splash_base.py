@@ -14,7 +14,7 @@ from scrapy import Spider, Request
 from scrapy_splash import SplashRequest
 
 from .. import SpiderBase
-from pe.items import DiMoPrice, PeSumoPrice
+from pe.items import PeSumoPrice
 from ..chem99_login import SeleniumLogin
 from .. import webrender
 
@@ -40,7 +40,7 @@ class SplashSpiderBase(SpiderBase):
 	}
 
 	#spider settings, not in settings.py
-	SCRAPY_SETTINGS = {
+	settings = {
 		'SPLASH_URL' : 'http://localhost:8050',
 
 		'DOWNLOADER_MIDDLEWARES' : {
