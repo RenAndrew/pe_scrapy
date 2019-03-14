@@ -21,7 +21,7 @@ class SeleniumLogin:
 		self.configPath = configPath
 
 		if not self.isConfigExists():
-			self.Cookie_Max_Duration = 172800 	# in seconds, equals to 48 hours
+			self.Cookie_Max_Duration = 17280 	# in seconds, equals to 48 hours
 		else:
 			self.readCookies()
 		
@@ -31,8 +31,9 @@ class SeleniumLogin:
 			return self.cookieStr
 
 		#if the cookie in config file is no more valid, then relogin
-		browser = webdriver.Chrome()
-		# browser = webdriver.PhantomJS()
+		# browser = webdriver.Chrome()
+		browser = webdriver.PhantomJS()
+		# browser = webdriver.Firefox()
 		browser.implicitly_wait(5)  # wait until the page is fully loaded.
 
 		browser.get(url)
