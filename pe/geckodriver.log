@@ -1,0 +1,8 @@
+Failed to open connection to "session" message bus: Did not receive a reply. Possible causes include: the remote application did not send a reply, the message bus security policy blocked the reply, the reply timeout expired, or the network connection was broken.
+Running Firefox as root in a regular user's session is not supported.  ($XDG_RUNTIME_DIR is /run/user/1000 which is owned by ren.)
+Failed to open connection to "session" message bus: Did not receive a reply. Possible causes include: the remote application did not send a reply, the message bus security policy blocked the reply, the reply timeout expired, or the network connection was broken.
+Running Firefox as root in a regular user's session is not supported.  ($XDG_RUNTIME_DIR is /run/user/1000 which is owned by ren.)
+1552534030866	geckodriver	INFO	geckodriver 0.20.1
+1552534030894	geckodriver	INFO	Listening on 127.0.0.1:47574
+Failed to open connection to "session" message bus: Did not receive a reply. Possible causes include: the remote application did not send a reply, the message bus security policy blocked the reply, the reply timeout expired, or the network connection was broken.
+Running Firefox as root in a regular user's session is not supported.  ($XDG_RUNTIME_DIR is /run/user/1000 which is owned by ren.)
