@@ -258,9 +258,10 @@ class LinkProducer(object):
 
 			for news_id in self.news_dict:
 				news_info = self.news_dict[news_id]
-				# print 'Yielding =======> ' + newsInfo['url']
+				# print 'Yielding =======> ' + news_info['url']
 				if self._filter_by_field(news_info):
-					break
+					# print '%' * 200
+					continue
 				
 				self.record_visited(news_id, news_info)
 				yield news_info['url']

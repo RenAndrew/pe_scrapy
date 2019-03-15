@@ -5,10 +5,10 @@ from splash_base import SplashSpiderBase
 from pe.items import PeNongmoPrice
 
 def filter_weekly_news(title):
-		
-	if title.decode('utf-8').contains(u'农膜周评'):
+	if title.find('农膜周评') != -1:
 		print '*' * 50
 		print title
+		print '已过滤'
 		print '*' * 50
 		return True
 	else:
@@ -58,6 +58,7 @@ class NongmoSpider(SplashSpiderBase):
 		except Exception as e:
 			print '-' * 50
 			print 'Error in parsing ' + response.url 
+			print response.css('.news_content h1').extract_first()
 			print e
 			print '-' * 50
 		print '=' * 40
