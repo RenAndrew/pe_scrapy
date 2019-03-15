@@ -21,7 +21,7 @@ class SeleniumLogin:
 		self.configPath = configPath
 
 		if not self.isConfigExists():
-			self.Cookie_Max_Duration = 172800 	# in seconds, equals to 48 hours
+			self.Cookie_Max_Duration = 21600 	# in seconds, equals to 6 hours
 		else:
 			self.readCookies()
 		

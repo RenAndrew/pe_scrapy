@@ -26,7 +26,7 @@ from .. import webrender
 本类中，生成带headers和cookies的新request，
 并重新爬取以获得登陆后的完整网页
 '''
-class SplashSpiderBase(SpiderBase):
+class SplashSpiderBase(Spider):
 	name = 'splashbase'
 
     # allowed_domains = ['http://plas.chem99.com/news/30375838.html']
