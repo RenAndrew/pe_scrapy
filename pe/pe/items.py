@@ -11,7 +11,6 @@ import scrapy
 # basics
 ###################################
 
-
 class BoxingSpiderItem(scrapy.Item):
     name = scrapy.Field()
     crawl_time = scrapy.Field()
