@@ -54,8 +54,7 @@ class PeNongmoPrice(BoxingSpiderItem):		#农膜
 	@staticmethod
 	def get_non_csv_columns():
 		return ['filename', 'to_update', 'target_table', 'target_column', 'src_column', 'crawl_time', 'name']
-
-
+    
 CN_COLUMN_NAMES = {
     # basic
     'filename': '文件名',
