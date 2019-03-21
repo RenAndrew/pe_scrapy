@@ -6,10 +6,11 @@ import os
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains  #鼠标操作
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
 
 class SeleniumLogin:
 
-	configFileName = 'login_config.dat'
+	configFileName = 'login_config_2019.dat'
 
 	def set_account(self, accountName, password):
 		self.userName = accountName
@@ -21,7 +22,7 @@ class SeleniumLogin:
 		self.configPath = configPath
 
 		if not self.isConfigExists():
-			self.Cookie_Max_Duration = 21600 	# in seconds, equals to 6 hours
+			self.Cookie_Max_Duration = 3600 	# in second
 		else:
 			self.readCookies()
 		
@@ -31,8 +32,13 @@ class SeleniumLogin:
 			return self.cookieStr
 
 		#if the cookie in config file is no more valid, then relogin
-		# browser = webdriver.Chrome()
-		browser = webdriver.PhantomJS()
+		options = Options()
+		#options.add_argument('--headless')
+		options.add_argument('--no-sandbox')
+		browser = webdriver.Chrome(chrome_options=options)
+		# browser = webdriver.PhantomJS()
+		# browser = webdriver.Firefox()
+		
 		browser.implicitly_wait(5)  # wait until the page is fully loaded.
 
 		browser.get(url)
@@ -49,6 +55,7 @@ class SeleniumLogin:
 		userPasswdInput.send_keys(self.userPassword)
 
 		submitBtn = browser.find_element_by_xpath('//*[@id="frm_login"]//*[@class="login_l_block"]//ul/li[3]//input')
+		# submitBtn = browser.find_element_by_xpath('//*[@id="frm_login"]//*[@id="ImageButton1"]')
 
 		# print submitBtn.get_attribute('innerHTML')
 		submitBtn.click()

@@ -65,6 +65,10 @@ class SplashSpiderBase(Spider):
 		"sccid" : 4602
 	}
 
+	USER_AGENT_LIST = [
+		'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.23 Mobile Safari/537.36',
+		'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
+	]
 	# splash lua script
 	spl_script = """
          function main(splash, args)
@@ -97,7 +101,8 @@ class SplashSpiderBase(Spider):
 	def __init__(self):
 		autologin_tool = SeleniumLogin(os.getcwd() + '/')
 		autologin_tool.set_account(self.config['username'], self.config['password'])
-		cookies = autologin_tool.selelogin('http://plas.chem99.com/news/30375838.html')
+		# cookies = autologin_tool.selelogin('http://chem.chem99.com/news/30417130.html')
+		cookies = autologin_tool.selelogin('http://plas.chem99.com/news/30420259.html')
 
 		# logined_cookies : 已登录的cookie
 		self.logined_cookies = self._cookie_format_to_splash(cookies)
@@ -209,8 +214,8 @@ class LinkProducer(object):
 	base_url = 'http://plas.chem99.com/news/'
 	search_api_url = 'http://www.sci99.com/search/ajax.aspx'
 
-	DEBUG_MODE = False
-	DEBUG_URL = 'http://plas.chem99.com/news/29796650.html'
+	DEBUG_MODE = True
+	DEBUG_URL = 'http://plas.chem99.com/news/30420259.html'
 
 	def __init__(self, cookie, meta):
 		self.headers = {
@@ -249,6 +254,7 @@ class LinkProducer(object):
 
 	def link_factory(self):
 		if self.DEBUG_MODE:
+			print 'Yielding ' + self.DEBUG_URL
 			yield self.DEBUG_URL
 			return
 

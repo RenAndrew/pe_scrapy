@@ -5,10 +5,10 @@ from splash_base import SplashSpiderBase
 from pe.items import PeNongmoPrice
 
 def filter_weekly_news(title):
-	if title.find('农膜周评') != -1:
+		
+	if title.decode('utf-8').contains('农膜周评'):
 		print '*' * 50
 		print title
-		print '已过滤'
 		print '*' * 50
 		return True
 	else:
@@ -22,7 +22,7 @@ class NongmoSpider(SplashSpiderBase):
 		"keyword" : "农膜日评",
 		"sccid" : 4520,
 		"filter" : {
-			"field" : "title",
+			"field" : "Title",
 			"method" : filter_weekly_news
 		}
 	}
