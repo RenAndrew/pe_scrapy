@@ -9,11 +9,13 @@ class Chem99PvcWeek(SplashSpiderBase):
 	name = 'chem99_pvc'
 
 	SEARCH_API_META = {
-		"keyword" : "甲醇港口库存量",
+		"keyword" : "本周PVC企业开工",
 		"sccid" : 0
 	}
+
+	DEBUG_URL = 'http://plas.chem99.com/news/30420259.html'
 
 	def parse_page(self, response):
 		print '====================> parse chem99_pvc'
 
-		print response.css('.news_info').extract_first()
+		print response.css('#Panel_News').extract_first()

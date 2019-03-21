@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
-import time, os
+import time, os,sys
+import random
 import re
 
 import urllib
@@ -13,10 +14,12 @@ import demjson
 from scrapy import Spider, Request
 from scrapy_splash import SplashRequest
 
-from .. import SpiderBase
-from pe.items import PeSumoPrice
-from ..chem99_login import SeleniumLogin
-from .. import webrender
+from boxing.spider import SpiderBase
+from ..util import SeleniumLogin
+sys.path.append('/shared/boxing/user_spiders')		#useless in pe_scrapy but for boxing.user_spiders project
+from user_items import PeSumoPrice
+
+# from .. import webrender
 
 '''
 这个爬虫是所有卓越网(http://plas.chem99.com)爬虫的父类
@@ -38,6 +41,9 @@ class SplashSpiderBase(Spider):
 		'username' : 'founder123',
 		'password' : '123Qweasd'
 	}
+
+	#Login type, override it to adapt to non-plas pages login
+	LOGIN_TYPE = 'PLAS_LOGIN' #OR 'CHEM_LOGIN'
 
 	#spider settings, not in settings.py
 	settings = {
@@ -65,10 +71,6 @@ class SplashSpiderBase(Spider):
 		"sccid" : 4602
 	}
 
-	USER_AGENT_LIST = [
-		'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.23 Mobile Safari/537.36',
-		'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
-	]
 	# splash lua script
 	spl_script = """
          function main(splash, args)
@@ -98,20 +100,27 @@ class SplashSpiderBase(Spider):
 			u'VMCPP' : 'VMCPP',
 		}
 
+	# WORK_PATH = '/shared/boxing/user_spiders/work/chem99/'
+	WORK_PATH = './pe/work/chem99/'
+
+	DEBUG_URL = None	#debug url is for crawl one page and test it
+
 	def __init__(self):
-		autologin_tool = SeleniumLogin(os.getcwd() + '/')
+		autologin_tool = SeleniumLogin(self.WORK_PATH, self.LOGIN_TYPE)
 		autologin_tool.set_account(self.config['username'], self.config['password'])
-		# cookies = autologin_tool.selelogin('http://chem.chem99.com/news/30417130.html')
-		cookies = autologin_tool.selelogin('http://plas.chem99.com/news/30420259.html')
+		cookies = autologin_tool.selelogin()
 
 		# logined_cookies : 已登录的cookie
-		self.logined_cookies = self._cookie_format_to_splash(cookies)
+		self.logined_cookies = self._cookie_format_to_splash(cookies)	#splash needs cookies in array format
 		self.logined_cookies_str = cookies
 		# print self.logined_cookies_str
 		# print self.logined_cookies
 
 	def start_requests(self):
 		link_producer = LinkProducer(self.logined_cookies_str, self.SEARCH_API_META)
+		if self.DEBUG_URL:
+			link_producer.set_debug_url(self.DEBUG_URL)
+
 		self.visited_news = link_producer.get_visited()		#get the detailed info of the news
 		link_source = link_producer.link_factory()
 
@@ -122,7 +131,7 @@ class SplashSpiderBase(Spider):
 		except StopIteration as e:
 			pass
 
-		link_producer.store_visited(self.name + '_visited.dat')
+		link_producer.store_visited(self.WORK_PATH + self.name + '_visited.dat')
 
 	# splash是一个动态页面渲染引擎，scrapy可以向本地splash申请渲染一个url并返回渲染后的页面
 	def produce_request(self, url, callback_method=None):
@@ -166,7 +175,6 @@ class SplashSpiderBase(Spider):
 		splash_cookie = []
 
 		cookie_list = cookie_str.split(';')
-		# print cookieList
 
 		for cookie in cookie_list:
 			if cookie.find('=') == -1:
@@ -214,8 +222,12 @@ class LinkProducer(object):
 	base_url = 'http://plas.chem99.com/news/'
 	search_api_url = 'http://www.sci99.com/search/ajax.aspx'
 
-	DEBUG_MODE = True
+	DEBUG_MODE = False
 	DEBUG_URL = 'http://plas.chem99.com/news/30420259.html'
+
+	def set_debug_url(self, debug_url):
+		self.DEBUG_URL = debug_url
+		self.DEBUG_MODE = True
 
 	def __init__(self, cookie, meta):
 		self.headers = {

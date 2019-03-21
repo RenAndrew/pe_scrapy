@@ -24,6 +24,10 @@ class Chem99MaInvWeek(SplashSpiderBase):
 		"sccid" : 0
 	}
 
+	LOGIN_TYPE = 'CHEM_LOGIN'
+
+	DEBUG_URL = 'http://chem.chem99.com/news/30417130.html'
+
 	def parse_page(self, response):
 		print '====================> parse chem99_ma_inv_week'
 
