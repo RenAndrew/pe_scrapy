@@ -277,9 +277,6 @@ class LinkProducer(object):
 			for news_id in self.news_dict:
 				news_info = self.news_dict[news_id]
 				# print 'Yielding =======> ' + news_info['url']
-				if self._filter_by_field(news_info):
-					# print '%' * 200
-					continue
 				
 				self.record_visited(news_id, news_info)
 				yield news_info['url']
@@ -311,6 +308,9 @@ class LinkProducer(object):
 		print 'Page: ' + str(self.page_index)
 
 		for news_item in hits_list:
+			if self._filter_by_field(news_item):
+				continue
+
 			news_id = news_item['NewsKey'].encode('ascii')
 			url = news_item['URL'].encode('ascii') + 'news/' + news_id + ".html"
 			title = news_item['Title'].encode('utf-8')
@@ -321,7 +321,7 @@ class LinkProducer(object):
 			sccid = news_item['SCCID'].encode('ascii')
 			class_name = news_item['ClassName'].encode('utf-8')
 
-			print ('ID: %d: %s | %s | %s' % (int(news_id), url, title, pub_date))
+			print ('%d: %s | %s | %s' % (int(news_id), news_item['WebSite'].encode('utf-8'), title, pub_date))
 
 			news_info = {
 				"url" : url,
@@ -348,7 +348,6 @@ class LinkProducer(object):
 			f.write(visited_news_json)
 
 	def _filter_by_field(self, news_info):
-
 		if not self.filter:
 			return False
 
