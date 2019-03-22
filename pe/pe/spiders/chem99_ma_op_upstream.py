@@ -1,30 +1,31 @@
 # -*- coding: utf-8 -*-
 
+#化工-MA上游开工-周度
 from splash_base import SplashSpiderBase
 
-from user_items import Chem99MaInv
+from user_items import Chem99MaOperationRateUpstreamWeek
 
-def filter_ma_inv_week(field):
-	if field != u'煤化工':
+def filter_title(field):
+	if not u'年' in field:
 		return False
 	else:
 		return True
 
-class Chem99MaInvWeek(SplashSpiderBase):
-	name = 'chem99_ma_inv'
+class Chem99MaOpUpstreamWeek(SplashSpiderBase):
+	name = 'chem99_ma_op'
 
 	SEARCH_API_META = {
-		"keyword" : "甲醇港口库存量",
+		"keyword" : "国内甲醇装置有效开工率",
 		"sccid" : 0,
 		"filter" : {
-			"field" : "WebSite",
-			"method" : filter_ma_inv_week
+			"field" : "Title",
+			"method" : filter_title
 		}
 	}
 
 	LOGIN_TYPE = 'CHEM_LOGIN'
 
-	# DEBUG_URL = 'http://chem.chem99.com/news/30417130.html'
+	DEBUG_URL = 'http://chem.chem99.com/news/30417035.html'
 
 	def parse_page(self, response):
 		print '====================> parse chem99_ma_inv_week'

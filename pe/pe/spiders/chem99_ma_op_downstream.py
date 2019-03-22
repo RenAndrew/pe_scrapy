@@ -1,30 +1,40 @@
 # -*- coding: utf-8 -*-
 
+#化工-MA下游开工-周度
 from splash_base import SplashSpiderBase
 
-from user_items import Chem99MaInv
+from user_items import Chem99MaOperationRateDownstreamWeek
 
-def filter_ma_inv_week(field):
-	if field != u'煤化工':
+def filter_sccid(field):
+	if field == '458':
 		return False
 	else:
 		return True
 
-class Chem99MaInvWeek(SplashSpiderBase):
-	name = 'chem99_ma_inv'
+def filter_title(field):
+	if not u'年' in field:
+		return False
+	else:
+		return True
+
+class Chem99MaOpDownstreamWeek(SplashSpiderBase):
+	name = 'chem99_ma_op_down'
 
 	SEARCH_API_META = {
-		"keyword" : "甲醇港口库存量",
+		"keyword" : "国内甲醇装置有效开工率",
 		"sccid" : 0,
-		"filter" : {
-			"field" : "WebSite",
-			"method" : filter_ma_inv_week
-		}
+		"filter" : [{
+			"field" : "SCCID",
+			"method" : filter_sccid
+		},{
+			"field" : "Title",
+			"method" : filter_title
+		}]
 	}
 
 	LOGIN_TYPE = 'CHEM_LOGIN'
 
-	# DEBUG_URL = 'http://chem.chem99.com/news/30417130.html'
+	DEBUG_URL = 'http://chem.chem99.com/news/30417097.html'
 
 	def parse_page(self, response):
 		print '====================> parse chem99_ma_inv_week'
@@ -38,7 +48,7 @@ class Chem99MaInvWeek(SplashSpiderBase):
 		}
 		try:
 			for i in range(2,6):
-				item = Chem99MaInv()
+				item = Chem99MaOperationRateDownstreamWeek()
 				
 				item['product_name'] = u'甲醇'
 				item['inv'] = self._strip_html_tags( response.css(selector_templ.format(2,i)).extract_first() ).encode('utf-8')
