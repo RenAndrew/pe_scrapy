@@ -5,7 +5,7 @@ from splash_base import SplashSpiderBase
 from user_items import Chem99MaInv
 
 def filter_ma_inv_week(field):
-	if field == u'煤化工':
+	if field != u'煤化工':
 		return False
 	else:
 		return True

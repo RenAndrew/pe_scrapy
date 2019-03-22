@@ -347,19 +347,39 @@ class LinkProducer(object):
 		with open(file_name, 'w+') as f:
 			f.write(visited_news_json)
 
+	# for more than two filters, any filter is true will filter the url
 	def _filter_by_field(self, news_info):
 		if not self.filter:
 			return False
 
-		field_name = self.filter["field"]
-		field_value = news_info.get(field_name)
-		
-		if field_value is None:
-			print ('Field value is empty!')
-			return False
+		if not isinstance(self.filter, list):
+			self.filter = [self.filter]
 
-		try:
-			is_been_filtered = self.filter["method"](field_value)
-			return is_been_filtered
-		except:
-			return False
+		for filter_item in self.filter:
+			field_name = filter_item['field']
+			field_value = news_info.get(field_name)
+			if field_value is None:
+				print ('Field value is empty!')
+				return False
+			try:
+				if filter_item['method'](field_value):
+					return True
+			except Exception as e:
+				print 'Error in _filter_by_field!'
+				print e
+				continue		#do next filter
+
+		return False
+
+		# field_name = self.filter["field"]
+		# field_value = news_info.get(field_name)
+		
+		# if field_value is None:
+		# 	print ('Field value is empty!')
+		# 	return False
+
+		# try:
+		# 	is_been_filtered = self.filter["method"](field_value)
+		# 	return is_been_filtered
+		# except:
+		# 	return False

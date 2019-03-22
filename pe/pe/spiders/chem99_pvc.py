@@ -12,16 +12,25 @@ def filter_pvc_sccid(field):
 	else:
 		return True
 
+def filter_pvc_title(field):
+	if field.find(u'糊树脂') == -1:
+		return False
+	else:
+		return True
+
 class Chem99PvcOperationWeek(SplashSpiderBase):
 	name = 'chem99_pvc'
 
 	SEARCH_API_META = {
 		"keyword" : "本周PVC企业开工",
 		"sccid" : 0,
-		"filter" : {
+		"filter" : [{
 			"field" : "SCCID",
 			"method" : filter_pvc_sccid
-		},
+		},{
+			"field" : "Title",
+			"method" : filter_pvc_title
+		},]
 	}
 
 	# DEBUG_URL = 'http://plas.chem99.com/news/30420259.html'
