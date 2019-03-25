@@ -1,0 +1,16 @@
+{'compare_to_last_week': u'1.23%',
+ 'compare_year_on_year': u'2.09%',
+ 'filename': 'China_MA_operation_rate_weekly',
+ 'name': 'chem99_ma_op',
+ 'operation_rate': u'69.48%',
+ 'operation_rate_last_week': u'68.64%',
+ 'operation_rate_last_year': u'68.05%',
+ 'unit': '%'}
+{'compare_to_last_week': u'1.00%',
+ 'compare_year_on_year': u'5.46%',
+ 'filename': 'Nortwest_China_MA_operation_rate_weekly',
+ 'name': 'chem99_ma_op',
+ 'operation_rate': u'82.60%',
+ 'operation_rate_last_week': u'81.78%',
+ 'operation_rate_last_year': u'78.32%',
+ 'unit': '%'}

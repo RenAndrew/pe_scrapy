@@ -210,12 +210,26 @@ class SplashSpiderBase(Spider):
 		text_without_tag = ''.join(content_pattern.findall(content_with_html))
 		return text_without_tag.strip()
 
+	def clean_tags(self, content_with_html):
+		content_with_html = '>' + content_with_html.replace('\n', '') + '<' #delete \n to make regexp work
+		content_pattern = re.compile('>(.*?)<')
+		# print content_pattern.findall(content_with_html)
+		text_without_tag = ''.join(content_pattern.findall(content_with_html))
+		return text_without_tag.strip()
+
 	def _filename_according_to(self, product_name):
 		file_name = self.fields_zn2en_mapping_dict.get(product_name)
 		if file_name is None:
 			return 'dnot_known_name'
 		else:
 			return file_name
+
+	def get_date_from_meta_info(self, url):
+		news_info = self.visited_news.get( self._get_id_from_url(url) )
+		if news_info:
+			return news_info['pubDate']
+		else:
+			return None
 
 class LinkProducer(object):
 

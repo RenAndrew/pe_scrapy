@@ -33,7 +33,7 @@ class Chem99PvcOperationWeek(SplashSpiderBase):
 		},]
 	}
 
-	# DEBUG_URL = 'http://plas.chem99.com/news/30420259.html'
+	DEBUG_URL = 'http://plas.chem99.com/news/30420259.html'
 
 	def parse_page(self, response):
 		print '====================> parse chem99_pvc'
@@ -48,12 +48,12 @@ class Chem99PvcOperationWeek(SplashSpiderBase):
 				item = Chem99PvcOpRateWeek()
 				row = table[i]
 
-				item['area'] = self._strip_html_tags(row[0])
-				item['province'] = self._strip_html_tags(row[1])
-				item['producer'] = self._strip_html_tags(row[2])
-				item['tech_process'] = self._strip_html_tags(row[3])
-				item['brand'] = self._strip_html_tags(row[4])
-				item['op_rate'] = self._strip_html_tags(row[5])
+				item['area'] = self.clean_tags(row[0])
+				item['province'] = self.clean_tags(row[1])
+				item['producer'] = self.clean_tags(row[2])
+				item['tech_process'] = self.clean_tags(row[3])
+				item['brand'] = self.clean_tags(row[4])
+				item['op_rate'] = self.clean_tags(row[5])
 
 				item['name'] = self.name
 				item['filename'] = self.name
