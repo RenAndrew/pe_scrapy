@@ -27,7 +27,7 @@ class Chem99MaOpUpstreamWeek(SplashSpiderBase):
 
 	LOGIN_TYPE = 'CHEM_LOGIN'
 
-	DEBUG_URL = 'http://chem.chem99.com/news/30417035.html'
+	# DEBUG_URL = 'http://chem.chem99.com/news/30417035.html'
 
 	def parse_page(self, response):
 		print '====================> parse chem99_ma_operation_rate_upstream'
