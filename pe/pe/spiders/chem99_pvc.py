@@ -69,11 +69,11 @@ class Chem99PvcOperationWeek(SplashSpiderBase):
 			print '-' * 50
 		print '=' * 40
 		
-	def _strip_html_tags(self, content_with_html):
-		# print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-		content_with_html = '>' + content_with_html.replace('\n', '') + '<' #delete \n to make regexp work
-		content_pattern = re.compile('>(.*?)<')
-		# print content_pattern.findall(content_with_html)
-		text_without_tag = ''.join(content_pattern.findall(content_with_html))
-		return text_without_tag.strip()
-		
+	# def _strip_html_tags(self, content_with_html):
+	# 	# print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+	# 	content_with_html = '>' + content_with_html.replace('\n', '') + '<' #delete \n to make regexp work
+	# 	content_pattern = re.compile('>(.*?)<')
+	# 	# print content_pattern.findall(content_with_html)
+	# 	text_without_tag = ''.join(content_pattern.findall(content_with_html))
+	# 	return text_without_tag.strip()
+	# 	
