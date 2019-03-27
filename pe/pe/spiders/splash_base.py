@@ -32,10 +32,6 @@ from user_items import PeSumoPrice
 class SplashSpiderBase(Spider):
 	name = 'splashbase'
 
-    # allowed_domains = ['http://plas.chem99.com/news/30375838.html']
-    # 这个start_url是塑料膜类别的索引页面地址，其他类别请覆盖这个地址
-	# start_urls = ['http://www.sci99.com/search/?key=%E5%A1%91%E8%86%9C%E6%94%B6%E7%9B%98%E4%BB%B7&siteid=0']
-
 	#Account info
 	config = {
 		'username' : 'founder123',

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import re
+#PP粉料
 from splash_base import SplashSpiderBase
 
 from ..util import html_table_parsing
@@ -15,7 +15,7 @@ class Chem99PPPowderPriceWeek(SplashSpiderBase):
 		"sccid" : 0,
 	}
 
-	DEBUG_URL = 'http://plas.chem99.com/news/30404467.html'
+	# DEBUG_URL = 'http://plas.chem99.com/news/30404467.html'
 
 	def parse_page(self, response):
 		print '====================> parse chem99_pp_powder'

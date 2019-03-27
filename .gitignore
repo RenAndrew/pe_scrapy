@@ -2,3 +2,5 @@
 *.pyc
 *.log
 *.dat
+*.xls
+*.xlsx

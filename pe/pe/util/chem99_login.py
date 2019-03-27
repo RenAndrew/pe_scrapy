@@ -22,12 +22,18 @@ class SeleniumLogin:
 			'user_name' : '//*[@id="chemname"]',
 			'password' : '//*[@id="chempwd"]',
 			'submit_button' : '//*[@id="frm_login"]//*[@id="ImageButton1"]'
+		},
+		'SCI_LOGIN' : {
+			'user_name' : '//*[@id="LogInPart1_SciName"]',
+			'password' : '//*[@id="LogInPart1_SciPwd"]',
+			'submit_button' : '//*[@id="LogInPart1_IB_Login"]'
 		} 
 	}
 
 	LOGIN_URL = {
 		'PLAS_LOGIN' : 'http://plas.chem99.com/news/30420259.html',
-		'CHEM_LOGIN' : 'http://chem.chem99.com/news/30417130.html'
+		'CHEM_LOGIN' : 'http://chem.chem99.com/news/30417130.html',
+		'SCI_LOGIN'  : r'http://price.sci99.com/view/priceview.aspx?pagename=plasticview&classid=571&pricetypeid=24&linkname=ldpe%E5%86%8D%E7%94%9F%E6%96%99&RequestId=977ecb8742a613d1'
 	}
 
 	def set_account(self, accountName, password):
@@ -68,8 +74,9 @@ class SeleniumLogin:
 
 		browser.get(self.login_page_url)
 
-		loginFrame = browser.find_element_by_xpath(self.selector['login_frame'])
-		browser.switch_to.frame(loginFrame)
+		if self.selector.get('login_frame') is not None:
+			loginFrame = browser.find_element_by_xpath(self.selector['login_frame'])
+			browser.switch_to.frame(loginFrame)
 
 		userNameInput = browser.find_element_by_xpath(self.selector['user_name'])
 		userNameInput.click()

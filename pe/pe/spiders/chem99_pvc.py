@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import re
 from splash_base import SplashSpiderBase
 
 from ..util import html_table_parsing
