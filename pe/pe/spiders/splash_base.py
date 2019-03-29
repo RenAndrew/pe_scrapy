@@ -14,22 +14,18 @@ import demjson
 from scrapy import Spider, Request
 from scrapy_splash import SplashRequest
 
-from boxing.spider import SpiderBase
+from boxing.spider import SpiderBase,SpiderConfig
 from ..util import SeleniumLogin
 sys.path.append('/shared/boxing/user_spiders')		#useless in pe_scrapy but for boxing.user_spiders project
 from user_items import PeSumoPrice
 
-# from .. import webrender
-
 '''
-这个爬虫是所有卓越网(http://plas.chem99.com)爬虫的父类
-提供基础的登陆功能，继承的爬虫只需要覆盖name和start_urls，以及：
-重写parseAfterlogin方法，在这个方法中提取相关的数据生成Item
-
-本类中，生成带headers和cookies的新request，
-并重新爬取以获得登陆后的完整网页
+这个爬虫是所有卓创网(http://plas.chem99.com)爬虫的父类
+其他类继承这个类可以获得自动登录和动态页面渲染的功能
+（动态页面渲染由splash服务器提供，请确保爬取前开启）
+覆盖__init__方法之前的静态变量可更改配置
 '''
-class SplashSpiderBase(Spider):
+class SplashSpiderBase(SpiderBase):
 	name = 'splashbase'
 
 	#Account info
@@ -101,7 +97,23 @@ class SplashSpiderBase(Spider):
 
 	DEBUG_URL = None	#debug url is for crawl one page and test it
 
+	def _read_config(self):
+		if os.path.exists(os.path.join(os.getcwd(), 'DEV_FLAG')):
+			print 'Current spider runs in dev mode.'
+			print os.getcwd()
+		else:
+			self.crawl_config = SpiderConfig().get_config('chem99')
+			self.config['username'] = self.crawl_config['username']
+			self.config['password'] = self.crawl_config['password']
+			self.WORK_PATH = self.crawl_config['work_path']
+
+		if not os.path.exists(self.WORK_PATH):
+			os.makedirs(self.WORK_PATH)
+
+		print 'Work path is: ' + self.WORK_PATH
+
 	def __init__(self):
+		self._read_config()
 		autologin_tool = SeleniumLogin(self.WORK_PATH, self.LOGIN_TYPE)
 		autologin_tool.set_account(self.config['username'], self.config['password'])
 		cookies = autologin_tool.selelogin()
@@ -380,16 +392,3 @@ class LinkProducer(object):
 				continue		#do next filter
 
 		return False
-
-		# field_name = self.filter["field"]
-		# field_value = news_info.get(field_name)
-		
-		# if field_value is None:
-		# 	print ('Field value is empty!')
-		# 	return False
-
-		# try:
-		# 	is_been_filtered = self.filter["method"](field_value)
-		# 	return is_been_filtered
-		# except:
-		# 	return False

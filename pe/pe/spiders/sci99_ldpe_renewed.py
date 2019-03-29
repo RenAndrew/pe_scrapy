@@ -10,7 +10,7 @@ from selenium.webdriver.chrome.options import Options
 
 from boxing.spider import SpiderBase
 
-# from user_items import Chem99PvcOpRateWeek
+from user_items import Sci99Ldpe
 
 class Sci99LdpeRenewed(SpiderBase):
 	name = 'sci99_ldpe'
@@ -42,6 +42,10 @@ class Sci99LdpeRenewed(SpiderBase):
 
 		self.download_data()
 
+	def __init__(self):
+		super(Sci99LdpeRenewed, self).__init__()
+		#read the configs
+
 	def download_data(self):
 		browser = self.open_browser()
 		browser.get(self.DATA_URL)
@@ -70,7 +74,7 @@ class Sci99LdpeRenewed(SpiderBase):
 		area = ''
 		for row_idx in range(1, len(rows)):
 			print '-' * 100
-			print tr_css_sel_templ % row_idx
+			# print tr_css_sel_templ % row_idx
 			rid = browser.find_element_by_css_selector(tr_css_sel_templ % row_idx).get_attribute("id")  #row id
 			print str(row_idx) + ' : ' + str(rid)
 			
@@ -87,8 +91,9 @@ class Sci99LdpeRenewed(SpiderBase):
 					show_detail_lookup = browser.find_element_by_css_selector(td_css_sel % 11)
 					show_detail_lookup.click()		#click to open new page
 
-					time.sleep(3)
+					time.sleep(3)	#wait the new tab
 					handles = browser.window_handles
+					handle_history = None
 					for handle in handles:
 						if handle != handle_main:
 							handle_history = handle

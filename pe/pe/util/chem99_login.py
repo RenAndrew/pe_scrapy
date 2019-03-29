@@ -107,13 +107,13 @@ class SeleniumLogin:
 		return cookie_str;
 
 	def storeCookies(self, cookieStr):
-		with open(self.configPath + self.configFileName, 'w+') as configFile:
+		with open(os.path.join(self.configPath,self.configFileName), 'w+') as configFile:
 			configFile.write( str(self.COOKIE_MAX_DURATION) + '\n' )
 			configFile.write( str(int(time.time())) + '\n' )
 			configFile.write(cookieStr)
 
 	def readCookies(self):
-		with open(self.configPath + self.configFileName, 'r') as configFile:
+		with open(os.path.join(self.configPath,self.configFileName), 'r') as configFile:
 			self.COOKIE_MAX_DURATION = int(configFile.readline())
 			createdTime = int(configFile.readline())
 
