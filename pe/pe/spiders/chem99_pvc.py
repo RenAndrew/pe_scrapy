@@ -32,14 +32,14 @@ class Chem99PvcOperationWeek(SplashSpiderBase):
 		},]
 	}
 
-	DEBUG_URL = 'http://plas.chem99.com/news/30420259.html'
+	# DEBUG_URL = 'http://plas.chem99.com/news/30420259.html'
 
 	def parse_page(self, response):
 		print '====================> parse chem99_pvc'
 		try:
 			# print response.css('#PanelContent').extract_first()
 			table_html = response.css('#PanelContent table').extract_first()
-			# print table_html
+			print table_html
 			table = html_table_parsing(table_html)
 
 			for i in range(1,len(table)):
@@ -47,12 +47,14 @@ class Chem99PvcOperationWeek(SplashSpiderBase):
 				item = Chem99PvcOpRateWeek()
 				row = table[i]
 
+				print row[0], row[1], row[2], row[3], row[4], row[5]
+
 				item['area'] = self.clean_tags(row[0])
 				item['province'] = self.clean_tags(row[1])
 				item['producer'] = self.clean_tags(row[2])
 				item['tech_process'] = self.clean_tags(row[3])
 				item['brand'] = self.clean_tags(row[4])
-				item['op_rate'] = self.clean_tags(row[5])
+				item['operation_rate'] = self.clean_tags(row[5])
 
 				item['name'] = self.name
 				item['filename'] = self.name

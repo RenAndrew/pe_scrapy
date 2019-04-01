@@ -139,7 +139,7 @@ class SplashSpiderBase(SpiderBase):
 		except StopIteration as e:
 			pass
 
-		link_producer.store_visited(self.WORK_PATH + self.name + '_visited.dat')
+		link_producer.store_visited(os.path.join(self.WORK_PATH, self.name + '_visited.dat'))
 
 	# splash是一个动态页面渲染引擎，scrapy可以向本地splash申请渲染一个url并返回渲染后的页面
 	def produce_request(self, url, callback_method=None):
