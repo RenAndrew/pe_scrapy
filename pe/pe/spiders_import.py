@@ -10,4 +10,11 @@ from spiders import Chem99PPPowderPriceWeek
 
 from spiders import Chem99PvcOperationWeek
 
+from spiders import Chem99NongmoPriceDaily
+
+from spiders import Chem99PeSpider
+
+#Sci99
+from spiders import Sci99LdpeRenewed
+
 print "------    loading user spiders!    -----"

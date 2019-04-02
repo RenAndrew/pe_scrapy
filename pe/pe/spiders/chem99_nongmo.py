@@ -2,22 +2,23 @@
 
 from splash_base import SplashSpiderBase
 
-from pe.items import PeNongmoPrice
+from user_items import Chem99NongmoPrice
 
 def filter_weekly_news(title):
 		
-	if title.decode('utf-8').contains('农膜周评'):
-		print '*' * 50
-		print title
-		print '*' * 50
+	if title.find(u'农膜周评') != -1:
+		# print '*' * 50
+		# print title
+		# print '*' * 50
 		return True
 	else:
 		return False
 
-class NongmoSpider(SplashSpiderBase):
-	name = 'nongmo'
+class Chem99NongmoPriceDaily(SplashSpiderBase):
+	name = 'chem99_nongmo'
 
-	
+	# DEBUG_URL = 'http://plas.chem99.com/news/30375838.html'
+
 	SEARCH_API_META = {
 		"keyword" : "农膜日评",
 		"sccid" : 4520,
@@ -39,7 +40,7 @@ class NongmoSpider(SplashSpiderBase):
 		selector_templ = '#PanelContent div:nth-child(4) tbody tr:nth-child({0}) td:nth-child({1})'
 		try:
 			for i in range(2,5):
-				item = PeNongmoPrice()
+				item = Chem99NongmoPrice()
 				
 				item['product_name'] = self._strip_html_tags( response.css(selector_templ.format(i, 1)).extract_first() ).encode('utf-8')
 				item['price_shandong'] = self._strip_html_tags( response.css(selector_templ.format(i,2)).extract_first() ).encode('utf-8')

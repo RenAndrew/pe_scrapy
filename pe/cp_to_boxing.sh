@@ -17,3 +17,6 @@ cp $SCRAPY_SRC_HOME_PATH/pe/spiders/chem99_ma_op_downstream.py $BOXING_USER_SPID
 cp $SCRAPY_SRC_HOME_PATH/pe/spiders/chem99_ma_op_upstream.py $BOXING_USER_SPIDER_PATH/spiders/
 cp $SCRAPY_SRC_HOME_PATH/pe/spiders/chem99_pp_powder_price.py $BOXING_USER_SPIDER_PATH/spiders/
 cp $SCRAPY_SRC_HOME_PATH/pe/spiders/chem99_pvc.py $BOXING_USER_SPIDER_PATH/spiders/
+cp $SCRAPY_SRC_HOME_PATH/pe/spiders/chem99_nongmo.py $BOXING_USER_SPIDER_PATH/spiders/
+cp $SCRAPY_SRC_HOME_PATH/pe/spiders/chem99_pe.py $BOXING_USER_SPIDER_PATH/spiders/
+cp $SCRAPY_SRC_HOME_PATH/pe/spiders/sci99_ldpe_renewed.py $BOXING_USER_SPIDER_PATH/spiders/

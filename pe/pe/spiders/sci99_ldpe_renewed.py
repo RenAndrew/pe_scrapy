@@ -33,8 +33,10 @@ class Sci99LdpeRenewed(SpiderBase):
 	DOWNLOAD_TMP_PATH = '/home/ren/work/git_repos/pe_scrapy/pe/result/'
 	DOWNLOAD_FILE_TMP_NAME = 'historydata.xls'
 	DOWNLOAD_PATH = '/home/ren/work/git_repos/pe_scrapy/pe/result/sci99_ldpe'
+
+	WORK_PATH = './pe/work/sci99/'
 	
-	HEADLESS_MODE = False
+	HEADLESS_MODE = False		#headless mode does not work, dont know why
 
 	def parse(self, response):
 		print '====================> parse sci99_ldpe'
@@ -44,7 +46,27 @@ class Sci99LdpeRenewed(SpiderBase):
 
 	def __init__(self):
 		super(Sci99LdpeRenewed, self).__init__()
-		#read the configs
+		if os.path.exists(os.path.join(os.getcwd(), 'DEV_FLAG')):
+			print 'Current spider runs in dev mode.'
+			print os.getcwd()
+		else:
+			#read the configs
+			self.crawl_config = SpiderConfig().get_config('sci99')
+			self.config['username'] = self.crawl_config['username']
+			self.config['password'] = self.crawl_config['password']
+			self.WORK_PATH = self.crawl_config['work_path']
+			self.DOWNLOAD_TMP_PATH = os.path.join(self.WORK_PATH, 'tmp')
+			self.DOWNLOAD_PATH = os.path.join(self.crawl_config['result_path'], self.name)
+
+		if not os.path.exists(self.WORK_PATH):
+			os.makedirs(self.WORK_PATH)
+		if not os.path.exists(self.DOWNLOAD_TMP_PATH):
+			os.makedirs(self.DOWNLOAD_TMP_PATH)
+		
+
+		print 'Work path is: ' + self.WORK_PATH
+
+
 
 	def download_data(self):
 		browser = self.open_browser()

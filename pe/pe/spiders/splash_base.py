@@ -17,7 +17,7 @@ from scrapy_splash import SplashRequest
 from boxing.spider import SpiderBase,SpiderConfig
 from ..util import SeleniumLogin
 sys.path.append('/shared/boxing/user_spiders')		#useless in pe_scrapy but for boxing.user_spiders project
-from user_items import PeSumoPrice
+from user_items import Chem99PeSumoPrice
 
 '''
 这个爬虫是所有卓创网(http://plas.chem99.com)爬虫的父类
@@ -152,7 +152,7 @@ class SplashSpiderBase(SpiderBase):
 
 		try:
 			for i in range(2,9):
-				item = PeSumoPrice()
+				item = Chem99PeSumoPrice()
 				selector_templ = '#PanelContent tbody tr:nth-child({0}) td:nth-child({1})'
 				
 				item['product_name'] = self._strip_html_tags( response.css(selector_templ.format(i, 1)).extract_first() ).encode('utf-8')
@@ -163,6 +163,7 @@ class SplashSpiderBase(SpiderBase):
 				item['increase_to_last_month'] = self._strip_html_tags( response.css(selector_templ.format(i,6)).extract_first() )
 				item['increase_to_last_year'] = self._strip_html_tags( response.css(selector_templ.format(i,7)).extract_first() )
 
+				item['unit'] = u'元/吨'
 				item['name'] = self.name
 				item['filename'] = self._filename_according_to(item['product_name'].decode('utf-8'))
 
