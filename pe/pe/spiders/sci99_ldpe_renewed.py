@@ -8,7 +8,7 @@ from selenium.webdriver.common.action_chains import ActionChains  #鼠标操作
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 
-from boxing.spider import SpiderBase
+from boxing.spider import SpiderBase,SpiderConfig
 
 from user_items import Sci99Ldpe
 
