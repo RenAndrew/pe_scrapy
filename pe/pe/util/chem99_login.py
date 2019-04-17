@@ -63,12 +63,14 @@ class SeleniumLogin:
 			return self.cookieStr
 
 		#if the cookie in config file is no more valid, then relogin
-		options = Options()
-		#options.add_argument('--headless')
-		options.add_argument('--no-sandbox')
-		browser = webdriver.Chrome(chrome_options=options)
-		# browser = webdriver.PhantomJS()
-		# browser = webdriver.Firefox()
+		if os.path.exists(os.path.join(os.getcwd(), 'DEV_FLAG')):	#runs in dev mode.
+			options = Options()
+			#options.add_argument('--headless')
+			options.add_argument('--no-sandbox')
+			browser = webdriver.Chrome(chrome_options=options)
+			# browser = webdriver.Firefox()
+		else:
+			browser = webdriver.PhantomJS()
 		
 		browser.implicitly_wait(5)  # wait until the page is fully loaded.
 
