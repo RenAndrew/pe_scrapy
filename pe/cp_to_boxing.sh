@@ -33,3 +33,5 @@ cp $SCRAPY_SRC_HOME_PATH/pe/spiders/sci99_ldpe_renewed.py $BOXING_USER_SPIDER_PA
 
 cp $SCRAPY_SRC_HOME_PATH/user_spider_root/*	$BOXING_USER_SPIDER_PATH/
 
+#copy conf
+cp $SCRAPY_SRC_HOME_PATH/pe/conf/*.conf $BOXING_USER_SPIDER_PATH/conf/

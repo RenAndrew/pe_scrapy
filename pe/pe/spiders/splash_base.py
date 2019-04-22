@@ -304,8 +304,8 @@ class LinkProducer(object):
 				self.record_visited(news_id, news_info)
 				yield news_info['url']
 
-			# self.next_news_page()
-			break		#for test ignore the next page
+			self.next_news_page()
+			# break		#for test ignore the next page
 
 	def next_news_page(self):
 		self.page_index += 1
