@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-
+import sys
 from boxing.spider import SpiderBase, SpiderConfig
-from .util import AutoLoginTool, UrlCrawler, UrlCrawlerConfig
+from ..util import AutoLoginTool, UrlCrawler, UrlCrawlerConfig
 
-from util import get_boxing_table_name_column_name
+from ..util import get_boxing_table_name_column_name
+sys.path.append('/shared/boxing/user_spiders')      #useless in pe_scrapy but for boxing.user_spiders project
 from user_items import OilchemItem_Test, UserItemHelper
+from boxing.spider.items import BoxingItemHelper
 
 class OilchemSpiderTest(SpiderBase):
     """ 爬取隆众价格网上塑料数据，直接调用数据API获取数据，自动登录并利用登录后的cookie获取权限 """
