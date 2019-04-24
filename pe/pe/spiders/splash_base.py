@@ -74,6 +74,7 @@ class SplashSpiderBase(SpiderBase):
 			     ["User-Agent"] = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.23 Mobile Safari/537.36",
 			 })
          	 splash:init_cookies(args.cookies)
+         	 splash.images_enabled = false -- disable images
              assert(splash:go(args.url))
              assert(splash:wait(args.wait))
              --return splash:get_cookies()
