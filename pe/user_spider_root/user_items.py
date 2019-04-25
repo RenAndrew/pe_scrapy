@@ -84,10 +84,10 @@ BoxingItemHelper.update_column('increase_to_last_year','较去年同期')
 
 #Oilchem
 BoxingItemHelper.update_column('delta_rate','涨跌率')
-BoxingItemHelper.update_column('price_market','市场价')
-BoxingItemHelper.update_column('price_high','高端价')
-# BoxingItemHelper.update_column('region','较去年同期')
-BoxingItemHelper.update_column('price_low','低端价')
+BoxingItemHelper.update_column('price_market','主流价')
+BoxingItemHelper.update_column('price_high','最高价')
+# BoxingItemHelper.update_column('region','区域')
+BoxingItemHelper.update_column('price_low','最低价')
 BoxingItemHelper.update_column('market','市场')
 
 #Base class of User Items

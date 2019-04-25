@@ -61,76 +61,6 @@
                 }
             },
             {
-                "comment": "BRENT原油价格usd",
-                "header_type": "oc2",
-                "data_api_url": "http://price.oilchem.net/getBopPriceJson.lz?id=17&pP=%E5%B8%83%E4%BC%A6%E7%89%B9&pType=&keyword=&starttime=&endtime=&orderType=&webFlag=1",
-                "crawler_name": "BRENT_USD"
-            },
-            {
-                "comment": "LD华东价格usd",
-                "crawler_name": "LDPE_USD",
-                "data_api_url": "http://price.oilchem.net/imPrice/getPrice.lz?id=3976&priceDate=&priceDate1=&pName1=LDPE&pModel1=%E9%80%9A%E7%94%A8&pArea1=&pType1=&keyword=&orderType=&webFlag=2"
-            },
-            {
-                "comment": "HD华东价格usd",
-                "crawler_name": "HDPE_USD",
-                "data_api_url": "http://price.oilchem.net/imPrice/getPrice.lz?id=3974&priceDate=&priceDate1=&pName1=HDPE&pModel1=%E6%B3%A8%E5%A1%91&pArea1=&pType1=&keyword=&orderType=&webFlag=2"
-            },
-            {
-                "comment": "石脑油日本价格usd",
-                "crawler_name": "NAPHTHA_USD",
-                "data_api_url": "http://price.oilchem.net/imPrice/getPrice.lz?id=4241&priceDate=&priceDate1=&pName1=%E7%9F%B3%E8%84%91%E6%B2%B9&pModel1=&pArea1=&pType1=&keyword=&orderType=&webFlag=1"
-            },
-            {
-                "comment": "乙烯东北亚价格usd",
-                "crawler_name": "ETHYLENE_NEAISA_USD",
-                "data_api_url": "http://price.oilchem.net/imPrice/getPrice.lz?id=3863&priceDate=&priceDate1=&pName1=%E4%B9%99%E7%83%AF&pModel1=&pArea1=&pType1=&keyword=&orderType=&webFlag=3"
-            },
-            {
-                "comment": "LL华北价格中石油出厂cny",
-                "header_type": "oc3",
-                "crawler_name": "LLDPE_NC_ZSY_CNY",
-                "data_api_url": "http://price.oilchem.net/getDepPriceJson.lz?id=8180&pName=LLDPE&pModel=7042&pArea=&pFactory=&keyword=&starttime=&endtime=&orderType=&webFlag=2"
-            },
-            {
-                "comment": "LL华东价格中石油出厂cny",
-                "header_type": "oc3",
-                "crawler_name": "LLDPE_EC_ZSY_CNY",
-                "data_api_url": "http://price.oilchem.net/getDepPriceJson.lz?id=8183&pName=LLDPE&pModel=7042&pArea=&pFactory=&keyword=&starttime=&endtime=&orderType=&webFlag=2"
-            },
-            {
-                "comment": "LL华北价格中石化出厂cny",
-                "header_type": "oc3",
-                "crawler_name": "LLDPE_NC_ZSH_CNY",
-                "data_api_url": "http://price.oilchem.net/getDepPriceJson.lz?id=8185&pName=LLDPE&pModel=7042&pArea=&pFactory=&keyword=&starttime=&endtime=&orderType=&webFlag=2"
-            },
-            {
-                "comment": "LL华东价格中石化出厂cny",
-                "header_type": "oc3",
-                "crawler_name": "LLDPE_EC_ZSH_CNY",
-                "data_api_url": "http://price.oilchem.net/getDepPriceJson.lz?id=8179&pName=LLDPE&pModel=7042&pArea=&pFactory=&keyword=&starttime=&endtime=&orderType=&webFlag=2"
-            },
-            {
-                "comment": "LL西北欧价格usd",
-                "crawler_name": "LLDPE_NW_EURO_USD",
-                "data_api_url": "http://price.oilchem.net/imPrice/getPrice.lz?id=3911&priceDate=&priceDate1=&pName1=LLDPE&pModel1=%E4%B8%81%E7%83%AF%E5%9F%BA&pArea1=&pType1=&keyword=&orderType=&webFlag=2"
-            },
-            {
-                "comment": "LL中东价格usd",
-                "crawler_name": "LLDPE_MIDEAST_USD",
-                "data_api_url": "http://price.oilchem.net/imPrice/getPrice.lz?id=4438&priceDate=&priceDate1=&pName1=LLDPE&pModel1=%E4%B8%81%E7%83%AF%E5%9F%BA&pArea1=&pType1=&keyword=&orderType=&webFlag=2"
-            },
-            {
-                "comment": "LL远东价格usd",
-                "crawler_name": "LLDPE_FAREAST_USD",
-                "data_api_url": "http://price.oilchem.net/imPrice/getPrice.lz?id=3835&priceDate=&priceDate1=&pName1=LLDPE&pModel1=%E4%B8%81%E7%83%AF%E5%9F%BA&pArea1=&pType1=&keyword=&orderType=&webFlag=2"
-            },
-            {
-                "comment": "LL东南亚价格usd",
-                "crawler_name": "LLDPE_SOURTHEASTASIA_USD",
-                "data_api_url": "http://price.oilchem.net/imPrice/getPrice.lz?id=3837&priceDate=&priceDate1=&pName1=LLDPE&pModel1=%E4%B8%81%E7%83%AF%E5%9F%BA&pArea1=&pType1=&keyword=&orderType=&webFlag=2"
-            },
-            {
                 "comment": "LL美湾价格usd",
                 "crawler_name": "LLDPE_USA_USD",
                 "data_api_url": "http://price.oilchem.net/imPrice/getPrice.lz?id=3836&priceDate=&priceDate1=&pName1=LLDPE&pModel1=%E4%B8%81%E7%83%AF%E5%9F%BA&pArea1=&pType1=&keyword=&orderType=&webFlag=2"
@@ -138,7 +68,7 @@
         ],
         "password": "ax1010zq"
     },
-    "oilchem_test": {
+    "oilchem_user": {
         "username": "axzq1010",
         "header_types": [
             {
@@ -159,6 +89,23 @@
                     "涨跌率",
                     "备注"
                 ]
+            },
+            {
+                "name": "oc_inter",
+                "applicable_headers": [
+                    "发布时间",
+                    "产品名称",
+                    "规格",
+                    "标准",
+                    "区域",
+                    "最低价",
+                    "最高价",
+                    "主流价",
+                    "单位",
+                    "涨跌幅",
+                    "涨跌率",
+                    "备注"
+                ]
             }
         ],
         "sub_crawlers": [
@@ -166,14 +113,179 @@
                 "comment": "LL华东价格usd",
                 "crawler_name": "LLDPE_TEST",
                 "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
-                
                 "price_id" : "5195",
-                "product_id" : "5195",
                 "start_time" : "2018-09-01",
-                "end_time" : "2019-03-06",
-                "product_name": "LLDPE",
-                "specification" : "7042",
-                "product_model" : "丁烯基"
+                "end_time" : "today"
+            },
+            {
+                "comment": "PVC华东电石法",
+                "crawler_name": "PVC华东电石法",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "page_url" : "https://dc.oilchem.net/priceDomestic/detail.htm?id=5503&timeType=0&flag=1",
+                "price_id" : "5503",
+
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "PVC华北电石法",
+                "crawler_name": "PVC华北电石法",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "5508",
+
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "PVC华南电石法",
+                "crawler_name": "PVC华南电石法",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "5498",
+
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "PVC西北电石法",
+                "crawler_name": "PVC西北电石法",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6829",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "PVC华东乙烯法",
+                "crawler_name": "PVC华东乙烯法",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "5504",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "PVC华北乙烯法",
+                "crawler_name": "PVC华北乙烯法",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6215",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "PVC华南乙烯法",
+                "crawler_name": "PVC华南乙烯法",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "5499",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "PVC华东3型",
+                "crawler_name": "PVC华南乙烯法",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "7601",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "PVC华东8型",
+                "crawler_name": "PVC华东8型",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "7603",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "PVC糊树脂",
+                "crawler_name": "PVC糊树脂",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "7551",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "CFR东南亚usd",
+                "crawler_name": "CFR东南亚usd",
+                "data_api_url": "https://dc.oilchem.net/priceInternational/history.htm",
+                "price_id" : "3821",
+                "start_time" : "2018-09-01",
+                "end_time" : "today",
+
+                "header_type" : "oc_inter",
+                "data_type" : "international"
+            },
+            {
+                "comment": "CFR远东usd",
+                "crawler_name": "CFR远东usd",
+                "data_api_url": "https://dc.oilchem.net/priceInternational/history.htm",
+                "price_id" : "3963",
+                "start_time" : "2018-09-01",
+                "end_time" : "today",
+
+                "header_type" : "oc_inter",
+                "data_type" : "international"
+            },
+            {
+                "comment": "电石西北",
+                "crawler_name": "电石西北",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6495",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "电石华北",
+                "crawler_name": "电石华北",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6491",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "液氯华北",
+                "crawler_name": "液氯华北",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6628",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "液氯华东",
+                "crawler_name": "液氯华东",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "7067",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "烧碱西北",
+                "crawler_name": "烧碱西北",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6632",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "烧碱华北",
+                "crawler_name": "烧碱华北",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "7552",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "原盐西北",
+                "crawler_name": "原盐西北",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6700",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
+            },
+            {
+                "comment": "原盐华北",
+                "crawler_name": "原盐华北",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6525",
+                "start_time" : "2018-09-01",
+                "end_time" : "today"
             }
         ],
         "password": "ax1010zq"

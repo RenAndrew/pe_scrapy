@@ -201,16 +201,16 @@ class AutoLoginTool(object):
         raise Exception('failed to login')
 
 class UrlCrawlerConfig:
-    def __init__(self, price_id, product_id, start_time, end_time, specification):
+    def __init__(self, price_id, start_time, end_time):
         self.price_id = price_id
-        self.product_id = product_id
+        # self.product_id = product_id
         self.start_time = start_time
         if end_time == 'today':
             today = time.strftime("%Y-%m-%d", time.localtime())
             self.end_time = today
         else:
             self.end_time = end_time
-        self.specification = specification
+        # self.specification = specification #new version of oilchem descarded this field.
 
 class UrlCrawler(object):
 
@@ -251,7 +251,7 @@ class UrlCrawler(object):
 
         return demjson.decode(response.read())  # the data is in raw javascript format, not json, convert it to json (python object).
 
-    def download_data(self, req_url, cookie):
+    def download_data(self, req_url, cookie, dtype='domestic'):
         page_idx = 1
         page_size = 300
         headers = self._get_headers(cookie)
@@ -259,16 +259,22 @@ class UrlCrawler(object):
         
         num_pages = data['pages']
         
-        records = self._extract_items_in_page(data)     #first page
+        records = self._extract_items_in_page(data, dtype)     #first page
         for i in range(1, num_pages):
             data = self._req_data(req_url, headers, page_size, i)
-            records = records + self._extract_items_in_page(data)
+            records = records + self._extract_items_in_page(data, dtype)
     
         print 'finished downloading data for: ' + req_url
         
         return records
 
-    def _extract_items_in_page(self, jsonData):
+    def _extract_items_in_page(self, jsonData, dtype):
+        if dtype == 'domestic':
+            return self._extract_items_in_page_domestic(jsonData)
+        elif dtype == 'international':
+            return self._extract_items_in_page_international(jsonData)
+
+    def _extract_items_in_page_domestic(self, jsonData):
         rows = jsonData['pageInfo']['list']
 
         records = []
@@ -280,6 +286,45 @@ class UrlCrawler(object):
             region = item['regionName']
             market = item['internalMarketName']
             company = item['memberAbbreviation']
+            priceLow = item['lprice']
+            priceHigh = item['gprice']
+            priceMarket = item['indexValue']
+            unit = item['unitValuationName']
+            increaseAmount = item['riseOrFallSum']
+            increaseRate = item['riseOrFallRate']
+            remarks = item['remark']
+
+            record = {
+                'product_name' : productName,
+                'date' : pubDate,
+                'model' : spec,
+                'region' : region,
+                'market' : market,
+                'company' : company,
+                'price_low' : priceLow,
+                'price_high' : priceHigh,
+                'price_market' : priceMarket,
+                'unit' : unit,
+                'change' : increaseAmount,
+                'delta_rate' : increaseRate,
+                'remarks' : remarks 
+            }
+
+            records.append(record)
+
+        return records
+
+    def _extract_items_in_page_international(self, jsonData):
+        rows = jsonData['pageInfo']['list']
+
+        records = []
+        for item in rows:
+            pubDate = item['indexDate']
+            productName = item['varietiesName']
+            spec = item['specificationsName']
+            standard = item['standard']
+            region = item['regionName']
+            
             priceLow = item['lprice']
             priceHigh = item['gprice']
             priceMarket = item['indexValue']

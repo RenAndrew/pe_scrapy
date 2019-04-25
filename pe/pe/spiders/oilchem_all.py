@@ -21,7 +21,7 @@ class OilchemSpiderUser(SpiderBase):
     }
 
     def parse(self, response):
-        config = SpiderConfig().get_config('oilchem_test')
+        config = SpiderConfig().get_config('oilchem_user')
 
         login_tool = AutoLoginTool(config['username'], config['password'])
         logined_cookie = login_tool.submit_login_form(response.headers['Set-Cookie'])
@@ -35,7 +35,7 @@ class OilchemSpiderUser(SpiderBase):
 
             price_id = sub_crawler_info['price_id']
 
-            crawler_config = UrlCrawlerConfig(sub_crawler_info['price_id'], sub_crawler_info['product_id'], sub_crawler_info['start_time'], sub_crawler_info['end_time'], sub_crawler_info['specification'])
+            crawler_config = UrlCrawlerConfig(sub_crawler_info['price_id'], sub_crawler_info['start_time'], sub_crawler_info['end_time'])
             crawler = UrlCrawler(crawler_config)
 
             target_table = None
@@ -48,7 +48,17 @@ class OilchemSpiderUser(SpiderBase):
                 target_column = update_info['target_column'].encode('utf-8')
                 target_table, target_column = get_boxing_table_name_column_name(target_table, target_column)
 
-            records = crawler.download_data(req_url, logined_cookie)
+            records = []
+            data_type = sub_crawler_info.get('data_type', 'domestic')
+            if data_type == 'domestic':
+                records = crawler.download_data(req_url, logined_cookie)
+            elif data_type == 'international':
+                records = crawler.download_data(req_url, logined_cookie, dtype=data_type)
+            else:
+                print
+                print '[ERROR] Unknown data type, please check config.'
+                break
+            
             for record in records:
                 item = UserItemHelper.get_oilchem_item(sub_spider_name, filename=sub_spider_name, record=record, h_type=header_type)
                 if item is not None:
