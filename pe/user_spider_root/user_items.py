@@ -82,6 +82,14 @@ BoxingItemHelper.update_column('increase_to_last_week', '较上周同期')
 BoxingItemHelper.update_column('increase_to_last_month', '较上月同期')
 BoxingItemHelper.update_column('increase_to_last_year','较去年同期')
 
+#Oilchem
+BoxingItemHelper.update_column('delta_rate','涨跌率')
+BoxingItemHelper.update_column('price_market','市场价')
+BoxingItemHelper.update_column('price_high','高端价')
+# BoxingItemHelper.update_column('region','较去年同期')
+BoxingItemHelper.update_column('price_low','低端价')
+BoxingItemHelper.update_column('market','市场')
+
 #Base class of User Items
 #To override some system settings
 class BoxingUserSpiderItem(BoxingSpiderItem):
@@ -111,7 +119,7 @@ class BaseOilchemItem(BoxingSpiderItem):
         raise NotImplementedError('must be overwritten by sub classes')
 
 
-class OilchemItem_Test(BaseOilchemItem):
+class OilchemItem_User(BaseOilchemItem):
     product_name = scrapy.Field()
     date = scrapy.Field()
     model = scrapy.Field()
@@ -128,17 +136,20 @@ class OilchemItem_Test(BaseOilchemItem):
 
     @staticmethod
     def get_type_name():
-        return 'oc1'
+        return 'oc_user'
 
     @staticmethod
     def get_header_column_headers():
         columns = ['product_name', 'date', 'model', 'region', 'market', 'campany', 'price_low', 'price_high', 'price_market', 'unit', 'change', 'delta_rate', 'remarks']
         return [ UserItemHelper.get_cn_column_name(c).decode('utf-8') for c in columns ]
 
+    @staticmethod
+    def get_non_csv_columns():
+        return ['filename', 'to_update', 'target_table', 'target_column', 'src_column', 'crawl_time', 'name']
 
 #DO NOT USE THIS CLASS!
 class UserItemHelper(object):
-    OC1 = 'oc_test'
+    OC1 = 'oc_user'
 
     @staticmethod
     def get_cn_column_name(en_column):
@@ -153,7 +164,7 @@ class UserItemHelper(object):
         item = None
         if h_type == UserItemHelper.OC1:
             if record['price_low'] != 'lock':
-                item = OilchemItem_Test(filename=filename, name=spider_name, product_name=record['product_name'], date=record['date'], model=record['model'], region=record['region'], market=record['market'], company=record['company'], price_low=record['price_low'], price_high=record['price_high'], price_market=record['price_market'], unit=record['unit'], change=record['change'], delta_rate=record['delta_rate'], remarks=record['remarks'] )
+                item = OilchemItem_User(filename=filename, name=spider_name, product_name=record['product_name'], date=record['date'], model=record['model'], region=record['region'], market=record['market'], company=record['company'], price_low=record['price_low'], price_high=record['price_high'], price_market=record['price_market'], unit=record['unit'], change=record['change'], delta_rate=record['delta_rate'], remarks=record['remarks'] )
         else:
             print '[ERROR] h_type "{}" not implemented'
                     

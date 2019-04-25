@@ -15,3 +15,5 @@ from chem99_nongmo import Chem99NongmoPriceDaily
 from chem99_pe import Chem99PeSpider
 
 from sci99_ldpe_renewed import Sci99LdpeRenewed
+
+from oilchem_all import OilchemSpiderUser

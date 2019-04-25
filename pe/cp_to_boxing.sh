@@ -3,6 +3,7 @@
 SCRAPY_SRC_HOME_PATH='/home/ren/work/git_repos/pe_scrapy/pe'
 
 BOXING_USER_SPIDER_PATH='/shared/boxing/user_spiders'
+BOXING_CONFIG_PATH='/shared/boxing/config'
 
 echo `date "+%Y-%m-%d %H:%M:%S"`
 echo 'Copying py files from '$SCRAPY_SRC_HOME_PATH' to '$BOXING_USER_SPIDER_PATH
@@ -29,9 +30,11 @@ cp $SCRAPY_SRC_HOME_PATH/pe/spiders/chem99_pvc.py $BOXING_USER_SPIDER_PATH/spide
 cp $SCRAPY_SRC_HOME_PATH/pe/spiders/chem99_nongmo.py $BOXING_USER_SPIDER_PATH/spiders/
 cp $SCRAPY_SRC_HOME_PATH/pe/spiders/chem99_pe.py $BOXING_USER_SPIDER_PATH/spiders/
 cp $SCRAPY_SRC_HOME_PATH/pe/spiders/sci99_ldpe_renewed.py $BOXING_USER_SPIDER_PATH/spiders/
-
+cp $SCRAPY_SRC_HOME_PATH/pe/spiders/oilchem_all.py $BOXING_USER_SPIDER_PATH/spiders/
 
 cp $SCRAPY_SRC_HOME_PATH/user_spider_root/*	$BOXING_USER_SPIDER_PATH/
 
 #copy conf
 cp $SCRAPY_SRC_HOME_PATH/pe/conf/*.conf $BOXING_USER_SPIDER_PATH/conf/
+
+cp $SCRAPY_SRC_HOME_PATH/crawler_config.json $BOXING_CONFIG_PATH/
