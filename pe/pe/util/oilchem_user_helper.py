@@ -317,18 +317,23 @@ class UrlCrawler(object):
     def _extract_items_in_page_international(self, jsonData):
         rows = jsonData['pageInfo']['list']
 
+        print json.dumps(jsonData)[0:200]
+        print '=' * 100
+        
         records = []
+        debug_flag = True
         for item in rows:
             pubDate = item['indexDate']
             productName = item['varietiesName']
             spec = item['specificationsName']
             standard = item['standard']
-            region = item['regionName']
-            
+            region = item['customRegion'] #item['regionName']
+            priceType = item['priceTypeName']
             priceLow = item['lprice']
             priceHigh = item['gprice']
-            priceMarket = item['indexValue']
+            priceMid = item['indexValue']
             unit = item['unitValuationName']
+            priceCny = item['rprice']
             increaseAmount = item['riseOrFallSum']
             increaseRate = item['riseOrFallRate']
             remarks = item['remark']
@@ -338,16 +343,24 @@ class UrlCrawler(object):
                 'date' : pubDate,
                 'model' : spec,
                 'region' : region,
-                'market' : market,
-                'company' : company,
+                'price_type' : priceType,
                 'price_low' : priceLow,
                 'price_high' : priceHigh,
-                'price_market' : priceMarket,
+                'price_mid' : priceMid,
                 'unit' : unit,
+                'price_cny' : priceCny,
                 'change' : increaseAmount,
                 'delta_rate' : increaseRate,
                 'remarks' : remarks 
             }
+
+            if debug_flag:
+                print '# ' * 40 
+                print item
+                print '# ' * 40 
+                print record
+                print '# ' * 40
+                debug_flag = False
 
             records.append(record)
 
