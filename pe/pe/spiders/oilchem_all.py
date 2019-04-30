@@ -16,9 +16,9 @@ class OilchemSpiderUser(SpiderBase):
         'http://news.oilchem.net/login.shtml'
     ]
 
-    SETTINGS = {
-        'LOG_LEVEL' : 'ERROR',
-    }
+    # SETTINGS = {
+    #     'LOG_LEVEL' : 'ERROR',
+    # }
 
     def parse(self, response):
         config = SpiderConfig().get_config('oilchem_user')

@@ -9,4 +9,4 @@ from html_tool import html_table_parsing
 #########################################################
 
 from helper import get_boxing_table_name_column_name
-from oilchem_user_helper import AutoLoginTool, UrlCrawler, UrlCrawlerConfig
+from oilchem_user_helper import AutoLoginTool, UrlCrawler, UrlCrawlerConfig, SeleniumLogin

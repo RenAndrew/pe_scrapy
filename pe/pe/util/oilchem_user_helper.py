@@ -157,7 +157,8 @@ class AutoLoginTool(object):
         return logined_cookie
 
     def _get_ver_code_value(self, cookie):
-        verf_code_url = 'http://news.oilchem.net/getcode/api/?' + str(random.random()) + str(random.random())[2:6]  # 18 digits random number
+        # verf_code_url = 'http://news.oilchem.net/getcode/api/?' + str(random.random()) + str(random.random())[2:6]  # 18 digits random number
+        verf_code_url = 'https://passport.oilchem.net/member/login/getImgCode?timestamp=' + str(int(time.time()*1000))
 
         timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
 
@@ -199,6 +200,88 @@ class AutoLoginTool(object):
                 pass
 
         raise Exception('failed to login')
+
+#login by selenium operations, extends AutoLogin
+class SeleniumLogin(AutoLoginTool):
+
+    def selelogin(self, response):
+        browser = webdriver.Chrome()
+        # browser = webdriver.PhantomJS()
+        browser.implicitly_wait(5)  # wait until the page is fully loaded.
+
+        countTriedMax = 3
+        while (countTriedMax > 0):
+            countTriedMax = countTriedMax - 1
+
+            browser.get(response.url)
+
+            userNameInput = browser.find_element_by_id('dialogUsername')  
+            userNameInput.click()
+            userNameInput.send_keys(self.accountName)
+
+            passwrdInput = browser.find_element_by_id('dialogPassword')
+            passwrdInput.click()
+            passwrdInput.send_keys(self.password)
+
+            cookie_items = browser.get_cookies()
+            cookie = self.cookieToStr(cookie_items)
+            #Try to get and parse the verification code, try 5 times at most
+            codeValue = self.tryDecodeTimes(cookie, 5)
+            if codeValue is None:
+                raise Exception('Program quit exception.') # this will quit the program
+
+            try:
+                # loginedCookie = self.tryLoginByCode(submitUrl, codeValue, cookie)
+                verificationCode = browser.find_element_by_id('code')
+                verificationCode.click()
+                verificationCode.send_keys(codeValue)
+
+                time.sleep(1)
+
+                submitBtn = browser.find_element_by_id('login')
+                submitBtn.click()
+                time.sleep(3)
+
+                #get the data page for updating cookie
+                # browser.get('http://price.oilchem.net/imPrice/listPrice.lz?id=3975&webFlag=2&hndz=1')
+                # time.sleep(3)
+                cookie_items = browser.get_cookies()
+                loginedCookie = self.cookieToStr(cookie_items)
+                print (loginedCookie)
+
+                #test if really login by checking cookie
+                if (not self.testLoginOK(cookie_items)):
+                    continue    #break the while loop and try again
+
+                loginedCookie = self.cookieToStr(cookie_items)
+
+                print ('-'*30)
+                print ('Login successfully!')
+                # print (loginedCookie)
+                print ('-'*30)
+                browser.close()
+                return loginedCookie
+            except:
+                time.sleep(10) #do nothing but try again
+
+        browser.close()
+        print('Login failed more than 3 times, sorry we have to quit program.')
+        raise Exception('Program quit exception.')
+
+    def testLoginOK(self, cookie_items):
+        for cookie_item in cookie_items:
+            if cookie_item['name'] == 'userid':
+                return True
+        return False
+
+    def cookieToStr(self, cookie_items):
+        cookie_str = ''
+        for cookie_item in cookie_items:
+            cookie_str += ( cookie_item['name'] + '=' + cookie_item['value'] + ';' )
+
+        return cookie_str;
+
+    
 
 class UrlCrawlerConfig:
     def __init__(self, price_id, start_time, end_time):
