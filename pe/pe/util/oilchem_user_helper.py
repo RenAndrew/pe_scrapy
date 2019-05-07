@@ -2,7 +2,7 @@
 import json
 import locale
 import random
-import sys
+import sys,os
 import tempfile
 import time
 import traceback
@@ -16,6 +16,10 @@ from PIL import Image
 
 from boxing.spider import SpiderConfig
 
+from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains  #鼠标操作
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
 
 class Decoder(object):
 
@@ -82,6 +86,14 @@ class Decoder(object):
             pass
 
         return code_value
+
+    def read_img(self, img_file):
+        im = Image.open(img_file)
+        reenforced_im = self.transform_img(im)
+
+        expression = tesserocr.image_to_text(reenforced_im)
+
+        return expression
 
 
 class AutoLoginTool(object):
@@ -158,19 +170,27 @@ class AutoLoginTool(object):
 
     def _get_ver_code_value(self, cookie):
         # verf_code_url = 'http://news.oilchem.net/getcode/api/?' + str(random.random()) + str(random.random())[2:6]  # 18 digits random number
-        verf_code_url = 'https://passport.oilchem.net/member/login/getImgCode?timestamp=' + str(int(time.time()*1000))
+        count = 0
+        while count < 10:
+            count += 1
+            timestamp_millisecond = str(int(time.time()*1000))
+            verf_code_url = 'https://passport.oilchem.net/member/login/getImgCode?timestamp=' + timestamp_millisecond
 
-        timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+            # timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
 
-        req = urllib2.Request(verf_code_url)
-        req.add_header('cookie', cookie)
-        response = urllib2.urlopen(req)
-        imgData = response.read()
+            req = urllib2.Request(verf_code_url)
+            req.add_header('cookie', cookie)
+            response = urllib2.urlopen(req)
+            imgData = response.read()
 
-        img_file = tempfile.NamedTemporaryFile(suffix='_oc_verf', dir=SpiderConfig().get_temp_dir(), delete=True)
-        img_file.write(imgData)
+            codeImgFilePath = '/home/ren/work/git_repos/pe_scrapy/pe/pe/work/oilchem/' + timestamp_millisecond + '.jpg'
+            # img_file = tempfile.NamedTemporaryFile(suffix='_oc_verf', dir=SpiderConfig().get_temp_dir(), delete=True)
+            # img_file.write(imgData)
+            codeImgFile = open(codeImgFilePath, 'wb')
+            codeImgFile.write(imgData)  
+            codeImgFile.close()
 
-        code_value = self.decoder.decode_img(img_file)
+        code_value = self.decoder.read_img(codeImgFilePath)
         return code_value
 
     def try_get_verf_code_value(self, cookie, retry_times=5):
@@ -204,8 +224,15 @@ class AutoLoginTool(object):
 #login by selenium operations, extends AutoLogin
 class SeleniumLogin(AutoLoginTool):
 
-    def selelogin(self, response):
-        browser = webdriver.Chrome()
+    def selelogin(self, target_url):
+        if os.path.exists(os.path.join(os.getcwd(), 'DEV_FLAG')):   #runs in dev mode.
+            options = Options()
+            #options.add_argument('--headless')
+            options.add_argument('--no-sandbox')
+            browser = webdriver.Chrome(chrome_options=options)
+            # browser = webdriver.Firefox()
+        else:
+            browser = webdriver.PhantomJS()
         # browser = webdriver.PhantomJS()
         browser.implicitly_wait(5)  # wait until the page is fully loaded.
 
@@ -213,11 +240,14 @@ class SeleniumLogin(AutoLoginTool):
         while (countTriedMax > 0):
             countTriedMax = countTriedMax - 1
 
-            browser.get(response.url)
+            browser.get(target_url)
+
+            login_window_button = browser.find_element_by_css_selector('#header_menu_top_login a:nth-child(1)')
+            login_window_button.click()
 
             userNameInput = browser.find_element_by_id('dialogUsername')  
             userNameInput.click()
-            userNameInput.send_keys(self.accountName)
+            userNameInput.send_keys(self.username)
 
             passwrdInput = browser.find_element_by_id('dialogPassword')
             passwrdInput.click()
@@ -226,43 +256,47 @@ class SeleniumLogin(AutoLoginTool):
             cookie_items = browser.get_cookies()
             cookie = self.cookieToStr(cookie_items)
             #Try to get and parse the verification code, try 5 times at most
-            codeValue = self.tryDecodeTimes(cookie, 5)
+            codeValue = self._get_ver_code_value(cookie)
             if codeValue is None:
                 raise Exception('Program quit exception.') # this will quit the program
+            else:
+                print '$' * 100
+                print codeValue
+                print '$' * 100
 
-            try:
-                # loginedCookie = self.tryLoginByCode(submitUrl, codeValue, cookie)
-                verificationCode = browser.find_element_by_id('code')
-                verificationCode.click()
-                verificationCode.send_keys(codeValue)
+            # try:
+            #     # loginedCookie = self.tryLoginByCode(submitUrl, codeValue, cookie)
+            #     verificationCode = browser.find_element_by_id('code')
+            #     verificationCode.click()
+            #     verificationCode.send_keys(codeValue)
 
-                time.sleep(1)
+            #     time.sleep(1)
 
-                submitBtn = browser.find_element_by_id('login')
-                submitBtn.click()
-                time.sleep(3)
+            #     submitBtn = browser.find_element_by_id('login')
+            #     submitBtn.click()
+            #     time.sleep(3)
 
-                #get the data page for updating cookie
-                # browser.get('http://price.oilchem.net/imPrice/listPrice.lz?id=3975&webFlag=2&hndz=1')
-                # time.sleep(3)
-                cookie_items = browser.get_cookies()
-                loginedCookie = self.cookieToStr(cookie_items)
-                print (loginedCookie)
+            #     #get the data page for updating cookie
+            #     # browser.get('http://price.oilchem.net/imPrice/listPrice.lz?id=3975&webFlag=2&hndz=1')
+            #     # time.sleep(3)
+            #     cookie_items = browser.get_cookies()
+            #     loginedCookie = self.cookieToStr(cookie_items)
+            #     print (loginedCookie)
 
-                #test if really login by checking cookie
-                if (not self.testLoginOK(cookie_items)):
-                    continue    #break the while loop and try again
+            #     #test if really login by checking cookie
+            #     if (not self.testLoginOK(cookie_items)):
+            #         continue    #break the while loop and try again
 
-                loginedCookie = self.cookieToStr(cookie_items)
+            #     loginedCookie = self.cookieToStr(cookie_items)
 
-                print ('-'*30)
-                print ('Login successfully!')
-                # print (loginedCookie)
-                print ('-'*30)
-                browser.close()
-                return loginedCookie
-            except:
-                time.sleep(10) #do nothing but try again
+            #     print ('-'*30)
+            #     print ('Login successfully!')
+            #     # print (loginedCookie)
+            #     print ('-'*30)
+            #     browser.close()
+            #     return loginedCookie
+            # except:
+            #     time.sleep(10) #do nothing but try again
 
         browser.close()
         print('Login failed more than 3 times, sorry we have to quit program.')
