@@ -21,80 +21,7 @@ from selenium.webdriver.common.action_chains import ActionChains  #鼠标操作
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 
-class Decoder(object):
-
-    def __init__(self):
-        pass
-
-    def threshold_filter_img(self, img, threshold=140):
-        table = []
-        for i in range(256):
-            if i < threshold:
-                table.append(0)
-            else:
-                table.append(1)
-        img = img.point(table, '1')  # 所有低于门限值的全部为0
-        return img
-
-    def transform_img(self, img):
-        size = img.size
-        img = img.resize((size[0]*5, size[1]*5), Image.ANTIALIAS)  # 放大5倍
-
-        size = img.size
-        cutSizeX = int(size[0] * 0.87)  # magic number here
-        cutSizeY = int(size[1] * 0.8)
-        img = img.crop((0, 0, cutSizeX, cutSizeY))
-
-        img = img.convert('L')  # 转为灰度图片（黑白）
-
-        # 还可以进行二值化门限处理降低背景噪音增加精度 self.thresholdFilterImg
-        return img
-
-    def calculate(self, expression):
-        tokens = expression.split('+')
-        op = '+'
-        if (len(tokens) == 1):   # not plus operator
-            tokens = expression.split('-')
-            if (len(tokens) == 1):  # neither plus nor minus, bad recoginization
-                return -1
-            op = '-'
-
-        if len(tokens) != 2:
-            return -1  # unknown condition
-
-        left = tokens[0].encode('ascii').strip()
-        right = tokens[1].encode('ascii').strip()
-
-        left = int(left)
-        right = int(right)
-
-        if op == '+':
-            return left + right
-        else:
-            return left - right
-
-    def decode_img(self, img_file):
-        im = Image.open(img_file)
-        reenforced_im = self.transform_img(im)
-
-        expression = tesserocr.image_to_text(reenforced_im)
-
-        code_value = None
-        try:
-            code_value = self.calculate(expression)
-        except:
-            pass
-
-        return code_value
-
-    def read_img(self, img_file):
-        im = Image.open(img_file)
-        reenforced_im = self.transform_img(im)
-
-        expression = tesserocr.image_to_text(reenforced_im)
-
-        return expression
-
+from decode import Decoder
 
 class AutoLoginTool(object):
     """隆众网自动登录"""
@@ -169,26 +96,20 @@ class AutoLoginTool(object):
         return logined_cookie
 
     def _get_ver_code_value(self, cookie):
-        # verf_code_url = 'http://news.oilchem.net/getcode/api/?' + str(random.random()) + str(random.random())[2:6]  # 18 digits random number
-        count = 0
-        while count < 10:
-            count += 1
-            timestamp_millisecond = str(int(time.time()*1000))
-            verf_code_url = 'https://passport.oilchem.net/member/login/getImgCode?timestamp=' + timestamp_millisecond
+        timestamp_millisecond = str(int(time.time()*1000))
+        verf_code_url = 'https://passport.oilchem.net/member/login/getImgCode?timestamp=' + timestamp_millisecond
 
-            # timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
+        req = urllib2.Request(verf_code_url)
+        req.add_header('cookie', cookie)
+        response = urllib2.urlopen(req)
+        imgData = response.read()
 
-            req = urllib2.Request(verf_code_url)
-            req.add_header('cookie', cookie)
-            response = urllib2.urlopen(req)
-            imgData = response.read()
-
-            codeImgFilePath = '/home/ren/work/git_repos/pe_scrapy/pe/pe/work/oilchem/' + timestamp_millisecond + '.jpg'
-            # img_file = tempfile.NamedTemporaryFile(suffix='_oc_verf', dir=SpiderConfig().get_temp_dir(), delete=True)
-            # img_file.write(imgData)
-            codeImgFile = open(codeImgFilePath, 'wb')
-            codeImgFile.write(imgData)  
-            codeImgFile.close()
+        codeImgFilePath = '/home/ren/work/git_repos/pe_scrapy/pe/pe/work/oilchem/' + timestamp_millisecond + '.jpg'
+        # img_file = tempfile.NamedTemporaryFile(suffix='_oc_verf', dir=SpiderConfig().get_temp_dir(), delete=True)
+        # img_file.write(imgData)
+        codeImgFile = open(codeImgFilePath, 'wb')
+        codeImgFile.write(imgData)  
+        codeImgFile.close()
 
         code_value = self.decoder.read_img(codeImgFilePath)
         return code_value
@@ -196,10 +117,9 @@ class AutoLoginTool(object):
     def try_get_verf_code_value(self, cookie, retry_times=5):
         while (retry_times > 0):
             retry_times = retry_times - 1
-            codeValue = self._get_ver_code_value(cookie)
-            if (codeValue is not None and codeValue > 1000 and codeValue < 10000):
-                return codeValue
-
+            code_value = self._get_ver_code_value(cookie)
+            if len(code_value) == 4:
+                return code_value
         return None
 
     def submit_login_form(self, cookie):
@@ -236,84 +156,80 @@ class SeleniumLogin(AutoLoginTool):
         # browser = webdriver.PhantomJS()
         browser.implicitly_wait(5)  # wait until the page is fully loaded.
 
-        countTriedMax = 3
-        while (countTriedMax > 0):
-            countTriedMax = countTriedMax - 1
+        count_tried = 0
+        while (count_tried < 3):
+            count_tried += 1
 
             browser.get(target_url)
 
             login_window_button = browser.find_element_by_css_selector('#header_menu_top_login a:nth-child(1)')
             login_window_button.click()
 
-            userNameInput = browser.find_element_by_id('dialogUsername')  
-            userNameInput.click()
-            userNameInput.send_keys(self.username)
+            username_box = browser.find_element_by_id('dialogUsername')  
+            username_box.click()
+            username_box.send_keys(self.username)
 
-            passwrdInput = browser.find_element_by_id('dialogPassword')
-            passwrdInput.click()
-            passwrdInput.send_keys(self.password)
+            passwrd_box = browser.find_element_by_id('dialogPassword')
+            passwrd_box.click()
+            passwrd_box.send_keys(self.password)
 
             cookie_items = browser.get_cookies()
-            cookie = self.cookieToStr(cookie_items)
+            cookie = self._cookie_to_str(cookie_items)
+            print '$' * 50
+            print cookie
+            print '$' * 50
             #Try to get and parse the verification code, try 5 times at most
-            codeValue = self._get_ver_code_value(cookie)
-            if codeValue is None:
+            # code_value = self.try_get_verf_code_value(cookie)
+            code_value = self.read_code_from_cookie(cookie)
+            if code_value is None:
                 raise Exception('Program quit exception.') # this will quit the program
-            else:
-                print '$' * 100
-                print codeValue
-                print '$' * 100
 
-            # try:
-            #     # loginedCookie = self.tryLoginByCode(submitUrl, codeValue, cookie)
-            #     verificationCode = browser.find_element_by_id('code')
-            #     verificationCode.click()
-            #     verificationCode.send_keys(codeValue)
+            verification_code_box = browser.find_element_by_id('dialogImgCodeStr')
+            verification_code_box.click()
+            verification_code_box.send_keys(code_value)
 
-            #     time.sleep(1)
+            submit_button = browser.find_element_by_css_selector('#dialogForm .form-sub button')
+            submit_button.click()
 
-            #     submitBtn = browser.find_element_by_id('login')
-            #     submitBtn.click()
-            #     time.sleep(3)
-
-            #     #get the data page for updating cookie
-            #     # browser.get('http://price.oilchem.net/imPrice/listPrice.lz?id=3975&webFlag=2&hndz=1')
-            #     # time.sleep(3)
-            #     cookie_items = browser.get_cookies()
-            #     loginedCookie = self.cookieToStr(cookie_items)
-            #     print (loginedCookie)
-
-            #     #test if really login by checking cookie
-            #     if (not self.testLoginOK(cookie_items)):
-            #         continue    #break the while loop and try again
-
-            #     loginedCookie = self.cookieToStr(cookie_items)
-
-            #     print ('-'*30)
-            #     print ('Login successfully!')
-            #     # print (loginedCookie)
-            #     print ('-'*30)
-            #     browser.close()
-            #     return loginedCookie
-            # except:
-            #     time.sleep(10) #do nothing but try again
+            #get the data page for updating cookie
+            try:
+                browser.get('https://dc.oilchem.net/priceDomestic/detail.htm?id=6229&timeType=0&flag=1')
+                time.sleep(3)
+                cookie_items = browser.get_cookies()
+                if not self.test_login_OK(cookie_items):
+                    continue
+                logined_cookie = self._cookie_to_str(cookie_items)
+                print '$' * 50
+                print (logined_cookie)
+                print '$' * 50
+                browser.close()
+                return logined_cookie
+            except:
+                dig_alert = browser.switch_to.alert
+                dig_alert.accept()
 
         browser.close()
         print('Login failed more than 3 times, sorry we have to quit program.')
         raise Exception('Program quit exception.')
 
-    def testLoginOK(self, cookie_items):
+    def test_login_OK(self, cookie_items):
         for cookie_item in cookie_items:
-            if cookie_item['name'] == 'userid':
+            if len(cookie_item['_member_user_tonken_']) > 2:
                 return True
         return False
 
-    def cookieToStr(self, cookie_items):
+    def _cookie_to_str(self, cookie_items):
         cookie_str = ''
         for cookie_item in cookie_items:
             cookie_str += ( cookie_item['name'] + '=' + cookie_item['value'] + ';' )
 
         return cookie_str;
+
+    def read_code_from_cookie(self, cookie):
+        p1 = cookie.find('_imgCode')
+        pCodeBeg = p1 + len('_imgCode=')
+        pCodeEnd = pCodeBeg + 4
+        return cookie[pCodeBeg : pCodeEnd]
 
     
 
