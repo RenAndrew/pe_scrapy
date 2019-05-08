@@ -90,6 +90,7 @@ BoxingItemHelper.update_column('price_high','最高价')
 BoxingItemHelper.update_column('price_low','最低价')
 BoxingItemHelper.update_column('market','市场')
 
+
 #Base class of User Items
 #To override some system settings
 class BoxingUserSpiderItem(BoxingSpiderItem):
@@ -147,9 +148,40 @@ class OilchemItem_User(BaseOilchemItem):
     def get_non_csv_columns():
         return ['filename', 'to_update', 'target_table', 'target_column', 'src_column', 'crawl_time', 'name']
 
-#DO NOT USE THIS CLASS!
+class OilchemItem_Iter(BaseOilchemItem):
+    product_name = scrapy.Field()
+    date = scrapy.Field()
+    model = scrapy.Field()
+    region = scrapy.Field()
+    
+    price_type = scrapy.Field()
+    low_price = scrapy.Field()
+    high_price = scrapy.Field()
+    middle_price = scrapy.Field()
+    price_in_cny = scrapy.Field()
+    unit = scrapy.Field()
+    change = scrapy.Field()
+    delta_rate = scrapy.Field()
+    remarks = scrapy.Field()
+
+    @staticmethod
+    def get_type_name():
+        return 'oc_inter'
+
+    @staticmethod
+    def get_header_column_headers():
+        columns = ['product_name', 'date', 'model', 'region', 'campany', 'price_type', 'low_price', 'high_price', \
+                    'middle_price', 'unit', 'price_in_cny', 'change', 'delta_rate', 'remarks']
+        return [ UserItemHelper.get_cn_column_name(c).decode('utf-8') for c in columns ]
+
+    @staticmethod
+    def get_non_csv_columns():
+        return ['filename', 'to_update', 'target_table', 'target_column', 'src_column', 'crawl_time', 'name']
+
+
 class UserItemHelper(object):
     OC1 = 'oc_user'
+    OC2 = 'oc_inter'
 
     @staticmethod
     def get_cn_column_name(en_column):
@@ -163,13 +195,18 @@ class UserItemHelper(object):
     def get_oilchem_item(spider_name, filename, record, h_type):
         item = None
         if h_type == UserItemHelper.OC1:
-            if record['price_low'] != 'lock':
+            if record['price_low'] != '*':
                 item = OilchemItem_User(filename=filename, name=spider_name, product_name=record['product_name'], date=record['date'], model=record['model'], region=record['region'], market=record['market'], company=record['company'], price_low=record['price_low'], price_high=record['price_high'], price_market=record['price_market'], unit=record['unit'], change=record['change'], delta_rate=record['delta_rate'], remarks=record['remarks'] )
+        elif h_type == UserItemHelper.OC2:
+            if record['price_low'] != '*':
+                item = OilchemItem_Iter(filename=filename, name=spider_name, product_name=record['product_name'], \
+                  date=record['date'], model=record['model'], region=record['region'], delta_rate=record['delta_rate'],\
+                  low_price=record['price_low'], high_price=record['price_high'], middle_price=record['price_mid'], price_type=record['price_type'],\
+                  price_in_cny=record['price_cny'], unit=record['unit'], change=record['change'], remarks=record['remarks'] )
         else:
             print '[ERROR] h_type "{}" not implemented'
                     
         return item
-
 
 ################### For SplashSpiderBase ###############################
 

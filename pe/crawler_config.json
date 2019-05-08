@@ -100,23 +100,16 @@
                     "区域",
                     "最低价",
                     "最高价",
-                    "主流价",
+                    "中间价",
                     "单位",
                     "涨跌幅",
                     "涨跌率",
-                    "备注"
+                    "备注",
+                    "价格类型"
                 ]
             }
         ],
         "sub_crawlers": [
-            {
-                "comment": "LL华东价格usd",
-                "crawler_name": "LLDPE_TEST",
-                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
-                "price_id" : "5195",
-                "start_time" : "2018-09-01",
-                "end_time" : "today"
-            },
             {
                 "comment": "PVC华东电石法",
                 "crawler_name": "PVC华东电石法",
@@ -206,7 +199,7 @@
                 "crawler_name": "CFR东南亚usd",
                 "data_api_url": "https://dc.oilchem.net/priceInternational/history.htm",
                 "price_id" : "3821",
-                "start_time" : "2018-09-01",
+                "start_time" : "2019-04-16",
                 "end_time" : "today",
 
                 "header_type" : "oc_inter",
@@ -217,7 +210,7 @@
                 "crawler_name": "CFR远东usd",
                 "data_api_url": "https://dc.oilchem.net/priceInternational/history.htm",
                 "price_id" : "3963",
-                "start_time" : "2018-09-01",
+                "start_time" : "2019-04-20",
                 "end_time" : "today",
 
                 "header_type" : "oc_inter",

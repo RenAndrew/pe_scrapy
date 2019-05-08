@@ -52,8 +52,10 @@ class OilchemSpiderUser(SpiderBase):
             data_type = sub_crawler_info.get('data_type', 'domestic')
             if data_type == 'domestic':
                 records = crawler.download_data(req_url, logined_cookie)
+                #break
             elif data_type == 'international':
-                records = crawler.download_data(req_url, logined_cookie, dtype=data_type)
+                #records = crawler.download_data(req_url, logined_cookie, dtype=data_type)
+                break
             else:
                 print
                 print '[ERROR] Unknown data type, please check config.'
