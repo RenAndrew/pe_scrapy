@@ -16,4 +16,6 @@ from chem99_pe import Chem99PeSpider
 
 from sci99_ldpe_renewed import Sci99LdpeRenewed
 
-from oilchem_all import OilchemSpiderUser
+from oilchem_pvc import OilchemSpiderUser
+
+from oilchem_ma import OilchemMA

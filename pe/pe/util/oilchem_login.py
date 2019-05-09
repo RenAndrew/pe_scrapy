@@ -1,27 +1,18 @@
 # encoding=utf-8
-import json
-import locale
+
 import random
 import sys,os
 import tempfile
 import time
 import traceback
-import urllib
-import urllib2
-import zlib  # for gzip decompression
-
-import demjson
-import tesserocr
-from PIL import Image
-
-from boxing.spider import SpiderConfig
 
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains  #鼠标操作
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 
-from decode import Decoder
+from decode import Decoder      #Not used now
+
 
 class AutoLoginTool(object):
     """隆众网自动登录"""
@@ -104,14 +95,14 @@ class AutoLoginTool(object):
         response = urllib2.urlopen(req)
         imgData = response.read()
 
-        codeImgFilePath = '/home/ren/work/git_repos/pe_scrapy/pe/pe/work/oilchem/' + timestamp_millisecond + '.jpg'
-        # img_file = tempfile.NamedTemporaryFile(suffix='_oc_verf', dir=SpiderConfig().get_temp_dir(), delete=True)
-        # img_file.write(imgData)
-        codeImgFile = open(codeImgFilePath, 'wb')
-        codeImgFile.write(imgData)  
-        codeImgFile.close()
+        # img_file = '/home/ren/work/git_repos/pe_scrapy/pe/pe/work/oilchem/' + timestamp_millisecond + '.jpg'
+        img_file = tempfile.NamedTemporaryFile(suffix='_oc_verf', dir=SpiderConfig().get_temp_dir(), delete=True)
+        img_file.write(imgData)
+        # codeImgFile = open(img_file, 'wb')
+        # codeImgFile.write(imgData)  
+        # codeImgFile.close()
 
-        code_value = self.decoder.read_img(codeImgFilePath)
+        code_value = self.decoder.read_img(img_file)
         return code_value
 
     def try_get_verf_code_value(self, cookie, retry_times=5):
@@ -142,9 +133,13 @@ class AutoLoginTool(object):
         raise Exception('failed to login')
 
 #login by selenium operations, extends AutoLogin
-class SeleniumLogin(AutoLoginTool):
+class SeleniumLogin(object):
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
 
-    def selelogin(self, target_url):
+    def selelogin(self):
+        target_url = 'https://dc.oilchem.net/priceInternational/detail.htm?id=3963&timeType=0&flag=1'
         if os.path.exists(os.path.join(os.getcwd(), 'DEV_FLAG')):   #runs in dev mode.
             options = Options()
             #options.add_argument('--headless')
@@ -175,14 +170,11 @@ class SeleniumLogin(AutoLoginTool):
 
             cookie_items = browser.get_cookies()
             cookie = self._cookie_to_str(cookie_items)
-            print '$' * 50
-            print cookie
-            print '$' * 50
-            #Try to get and parse the verification code, try 5 times at most
+            
             # code_value = self.try_get_verf_code_value(cookie)
-            code_value = self.read_code_from_cookie(cookie)
+            code_value = self._read_code_from_cookie(cookie)
             if code_value is None:
-                raise Exception('Program quit exception.') # this will quit the program
+                raise Exception('Code value not found exception.') # this will quit the program
 
             verification_code_box = browser.find_element_by_id('dialogImgCodeStr')
             verification_code_box.click()
@@ -196,15 +188,16 @@ class SeleniumLogin(AutoLoginTool):
                 browser.get('https://dc.oilchem.net/priceDomestic/detail.htm?id=6229&timeType=0&flag=1')
                 time.sleep(3)
                 cookie_items = browser.get_cookies()
-                if not self.test_login_OK(cookie_items):
+                if not self._test_login_OK(cookie_items):
                     continue
                 logined_cookie = self._cookie_to_str(cookie_items)
-                print '$' * 50
+                print '$' * 80
                 print (logined_cookie)
-                print '$' * 50
+                print '$' * 80
                 browser.close()
                 return logined_cookie
             except:
+                print traceback.format_exc()
                 dig_alert = browser.switch_to.alert
                 dig_alert.accept()
 
@@ -212,10 +205,12 @@ class SeleniumLogin(AutoLoginTool):
         print('Login failed more than 3 times, sorry we have to quit program.')
         raise Exception('Program quit exception.')
 
-    def test_login_OK(self, cookie_items):
+    def _test_login_OK(self, cookie_items):
         for cookie_item in cookie_items:
-            if len(cookie_item['_member_user_tonken_']) > 2:
-                return True
+            if cookie_item['name'] == '_member_user_tonken_':
+                # print '=========>' + cookie_item['value']
+                if len(cookie_item['value']) > 2:
+                    return True
         return False
 
     def _cookie_to_str(self, cookie_items):
@@ -225,176 +220,8 @@ class SeleniumLogin(AutoLoginTool):
 
         return cookie_str;
 
-    def read_code_from_cookie(self, cookie):
+    def _read_code_from_cookie(self, cookie):
         p1 = cookie.find('_imgCode')
         pCodeBeg = p1 + len('_imgCode=')
         pCodeEnd = pCodeBeg + 4
         return cookie[pCodeBeg : pCodeEnd]
-
-    
-
-class UrlCrawlerConfig:
-    def __init__(self, price_id, start_time, end_time):
-        self.price_id = price_id
-        # self.product_id = product_id
-        self.start_time = start_time
-        if end_time == 'today':
-            today = time.strftime("%Y-%m-%d", time.localtime())
-            self.end_time = today
-        else:
-            self.end_time = end_time
-        # self.specification = specification #new version of oilchem descarded this field.
-
-class UrlCrawler(object):
-
-    def __init__(self, config):
-        self.config = config
-
-    def _get_headers(self, cookie):
-        headers = {
-            'Accept': 'application/json, text/plain, */*',
-            'Accept-Encoding': 'gzip, deflate',
-            'Accept-Language': 'zh-CN,zh;q=0.8',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.23 Mobile Safari/537.36',
-            'cookie': cookie
-        }
-
-        return headers
-
-    def _get_post_body(self, page, page_size):
-        body = {
-            'id' : self.config.price_id,
-            'startTime' : self.config.start_time,
-            'endTime' : self.config.end_time,
-            'timeType' : 0,
-            'pageNum' : page,
-            'pageSize' : page_size,
-        }
-        return urllib.urlencode(body)
-
-    def _req_data(self, req_url, headers, page_size, page_idx):
-        if (page_idx < 1 or page_idx > page_size):
-            raise "Incorrect page number " + str(page_idx)
-
-        body = self._get_post_body(page_idx, page_size)
-        req = urllib2.Request(req_url, headers=headers, data=body)
-        response = urllib2.urlopen(req)
-
-        return demjson.decode(response.read())  # the data is in raw javascript format, not json, convert it to json (python object).
-
-    def download_data(self, req_url, cookie, dtype='domestic'):
-        page_idx = 1
-        page_size = 300
-        headers = self._get_headers(cookie)
-        data = self._req_data(req_url, headers, page_size, page_idx)  # get the first page of data
-        
-        num_pages = data['pages']
-        
-        records = self._extract_items_in_page(data, dtype)     #first page
-        for i in range(1, num_pages):
-            data = self._req_data(req_url, headers, page_size, i)
-            records = records + self._extract_items_in_page(data, dtype)
-    
-        print 'finished downloading data for: ' + req_url
-        
-        return records
-
-    def _extract_items_in_page(self, jsonData, dtype):
-        if dtype == 'domestic':
-            return self._extract_items_in_page_domestic(jsonData)
-        elif dtype == 'international':
-            return self._extract_items_in_page_international(jsonData)
-
-    def _extract_items_in_page_domestic(self, jsonData):
-        rows = jsonData['pageInfo']['list']
-
-        records = []
-        for item in rows:
-            pubDate = item['indexDate']
-            productName = item['varietiesName']
-            spec = item['specificationsName']
-            standard = item['standard']
-            region = item['regionName']
-            market = item['internalMarketName']
-            company = item['memberAbbreviation']
-            priceLow = item['lprice']
-            priceHigh = item['gprice']
-            priceMarket = item['indexValue']
-            unit = item['unitValuationName']
-            increaseAmount = item['riseOrFallSum']
-            increaseRate = item['riseOrFallRate']
-            remarks = item['remark']
-
-            record = {
-                'product_name' : productName,
-                'date' : pubDate,
-                'model' : spec,
-                'region' : region,
-                'market' : market,
-                'company' : company,
-                'price_low' : priceLow,
-                'price_high' : priceHigh,
-                'price_market' : priceMarket,
-                'unit' : unit,
-                'change' : increaseAmount,
-                'delta_rate' : increaseRate,
-                'remarks' : remarks 
-            }
-
-            records.append(record)
-
-        return records
-
-    def _extract_items_in_page_international(self, jsonData):
-        rows = jsonData['pageInfo']['list']
-
-        print json.dumps(jsonData)[0:200]
-        print '=' * 100
-        
-        records = []
-        debug_flag = True
-        for item in rows:
-            pubDate = item['indexDate']
-            productName = item['varietiesName']
-            spec = item['specificationsName']
-            standard = item['standard']
-            region = item['customRegion'] #item['regionName']
-            priceType = item['priceTypeName']
-            priceLow = item['lprice']
-            priceHigh = item['gprice']
-            priceMid = item['indexValue']
-            unit = item['unitValuationName']
-            priceCny = item['rprice']
-            increaseAmount = item['riseOrFallSum']
-            increaseRate = item['riseOrFallRate']
-            remarks = item['remark']
-
-            record = {
-                'product_name' : productName,
-                'date' : pubDate,
-                'model' : spec,
-                'region' : region,
-                'price_type' : priceType,
-                'price_low' : priceLow,
-                'price_high' : priceHigh,
-                'price_mid' : priceMid,
-                'unit' : unit,
-                'price_cny' : priceCny,
-                'change' : increaseAmount,
-                'delta_rate' : increaseRate,
-                'remarks' : remarks 
-            }
-
-            if debug_flag:
-                print '# ' * 40 
-                print item
-                print '# ' * 40 
-                print record
-                print '# ' * 40
-                debug_flag = False
-
-            records.append(record)
-
-        return records

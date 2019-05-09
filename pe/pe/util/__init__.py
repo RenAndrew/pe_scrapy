@@ -9,5 +9,6 @@ from html_tool import html_table_parsing
 #########################################################
 
 from helper import get_boxing_table_name_column_name
-from oilchem_user_helper import AutoLoginTool, UrlCrawler, UrlCrawlerConfig, SeleniumLogin
+from oilchem_api_crawler import UrlCrawler, UrlCrawlerConfig
+from oilchem_login import AutoLoginTool, SeleniumLogin
 from decode import Decoder

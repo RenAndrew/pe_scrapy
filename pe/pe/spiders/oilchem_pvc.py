@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 from boxing.spider import SpiderBase, SpiderConfig
-from ..util import AutoLoginTool, UrlCrawler, UrlCrawlerConfig
+from ..util import AutoLoginTool, UrlCrawler, UrlCrawlerConfig,SeleniumLogin
 
 from ..util import get_boxing_table_name_column_name
 sys.path.append('/shared/boxing/user_spiders')      #useless in pe_scrapy but for boxing.user_spiders project
@@ -11,20 +11,21 @@ from boxing.spider.items import BoxingItemHelper
 class OilchemSpiderUser(SpiderBase):
     """ 爬取隆众价格网上塑料数据，直接调用数据API获取数据，自动登录并利用登录后的cookie获取权限 """
 
-    name = 'oilchem_all'
+    name = 'oilchem_pvc'
     start_urls = [
-        'http://news.oilchem.net/login.shtml'
+        'http://news.oilchem.net/login.shtml'   # this is fake
     ]
 
+    CONFIG_NAME = "oilchem_pvc"
     # SETTINGS = {
     #     'LOG_LEVEL' : 'ERROR',
     # }
 
     def parse(self, response):
-        config = SpiderConfig().get_config('oilchem_user')
+        config = SpiderConfig().get_config(self.CONFIG_NAME)
 
-        login_tool = AutoLoginTool(config['username'], config['password'])
-        logined_cookie = login_tool.submit_login_form(response.headers['Set-Cookie'])
+        login_tool = SeleniumLogin(config['username'], config['password'])
+        logined_cookie = login_tool.selelogin()
 
         # real crawler start here
         
@@ -35,8 +36,13 @@ class OilchemSpiderUser(SpiderBase):
 
             price_id = sub_crawler_info['price_id']
 
-            crawler_config = UrlCrawlerConfig(sub_crawler_info['price_id'], sub_crawler_info['start_time'], sub_crawler_info['end_time'])
+            crawler_config = UrlCrawlerConfig(sub_crawler_info['price_id'], sub_crawler_info['start_time'], \
+                                              sub_crawler_info['end_time'], sub_crawler_info['crawler_name'])
             crawler = UrlCrawler(crawler_config)
+
+            print '$' * 80
+            print 'Start crawling : %s' % crawler_config.crawler_name
+            print 'Date range: %s to %s' % (crawler_config.start_time, crawler_config.end_time)
 
             target_table = None
             target_column = None
@@ -53,13 +59,16 @@ class OilchemSpiderUser(SpiderBase):
             if data_type == 'domestic':
                 records = crawler.download_data(req_url, logined_cookie)
                 #break
-            elif data_type == 'international':
-                #records = crawler.download_data(req_url, logined_cookie, dtype=data_type)
-                break
+                # pass
+            elif data_type == 'international':              
+                records = crawler.download_data(req_url, logined_cookie, dtype=data_type)
+                # break
             else:
                 print
                 print '[ERROR] Unknown data type, please check config.'
                 break
+
+            print '$' * 80
             
             for record in records:
                 item = UserItemHelper.get_oilchem_item(sub_spider_name, filename=sub_spider_name, record=record, h_type=header_type)
