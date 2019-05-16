@@ -328,8 +328,233 @@
         "global_start_time" : "lastyear",
         "global_end_time" : "today",
         "sub_crawlers": [
-            
-           
+            {
+                "comment": "MA江苏",
+                "crawler_name": "MA江苏",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6229",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "MA宁波",
+                "crawler_name": "MA宁波",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6030",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "MA华南",
+                "crawler_name": "MA华南",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "5417",
+                "start_time" : "lastmonth",
+                "end_time" : "today", 
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "MA鲁南",
+                "crawler_name": "MA鲁南",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6916",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "MA鲁中",
+                "crawler_name": "MA鲁中",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "5555",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "MA河南",
+                "crawler_name": "MA河南",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6917",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "MA河北",
+                "crawler_name": "MA河北",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "5492",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "MA内蒙南",
+                "crawler_name": "MA内蒙南",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6196",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "MA陕西",
+                "crawler_name": "MA陕西",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6918",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "MA川渝",
+                "crawler_name": "MA川渝",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "7686",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "CFR东南亚usd",
+                "crawler_name": "CFR东南亚usd",
+                "data_api_url": "https://dc.oilchem.net/priceInternational/history.htm",
+                "price_id" : "3874",
+                "data_type" : "international",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+                "header_type" : "oc_inter",
+                "used_data_columns" : ["中间价"]
+            },
+            {
+                "comment": "FOB西北欧eru",
+                "crawler_name": "FOB西北欧eru",
+                "data_api_url": "https://dc.oilchem.net/priceInternational/history.htm",
+                "price_id" : "4022",
+                "data_type" : "international",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+                "header_type" : "oc_inter",
+                "used_data_columns" : ["中间价"]
+            },
+            {
+                "comment": "CFR中国主港usd",
+                "crawler_name": "CFR中国主港usd",
+                "data_api_url": "https://dc.oilchem.net/priceInternational/history.htm",
+                "price_id" : "3874",
+                "data_type" : "international",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+                "header_type" : "oc_inter",
+                "used_data_columns" : ["中间价"]
+            },
+            {
+                "comment": "FOB美湾（美分/加仑）usd",
+                "crawler_name": "FOB美湾usd",
+                "data_api_url": "https://dc.oilchem.net/priceInternational/history.htm",
+                "price_id" : "4128",
+                "data_type" : "international",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+                "header_type" : "oc_inter",
+                "used_data_columns" : ["中间价"]
+            },
+            {
+                "comment": "CFR印度usd",
+                "crawler_name": "CFR印度usd",
+                "data_api_url": "https://dc.oilchem.net/priceInternational/history.htm",
+                "price_id" : "4127",
+                "data_type" : "international",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+                "header_type" : "oc_inter",
+                "used_data_columns" : ["中间价"]
+            },
+            {
+                "comment": "甲醛山东",
+                "crawler_name": "甲醛山东",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6937",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "冰醋酸华东",
+                "crawler_name": "冰醋酸华东",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "5259",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "MTBE山东",
+                "crawler_name": "MTBE山东",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "7017",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "丙烯山东",
+                "crawler_name": "丙烯山东",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "6623",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "丙烯华东",
+                "crawler_name": "丙烯华东",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "7236",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "MEG华东",
+                "crawler_name": "MEG华东",
+                "data_api_url": "https://dc.oilchem.net/priceDomestic/history.htm",
+                "price_id" : "5445",
+                "start_time" : "lastmonth",
+                "end_time" : "today",
+
+                "used_data_columns" : ["主流价"]
+            },
+            {
+                "comment": "EO华东",
+                "crawler_name": "EO华东",
+                "data_api_url": "https://dc.oilchem.net/priceCompany/history.htm",
+                "price_id" : "8232",
+                "data_type" : "company",
+                "header_type" : "oc_company",
+                "start_time" : "5mago",
+                "end_time" : "today",
+
+                "used_data_columns" : ["企业报价"]
+            },
             {
                 "comment": "PP粉料华东",
                 "crawler_name": "PP粉料华东",
