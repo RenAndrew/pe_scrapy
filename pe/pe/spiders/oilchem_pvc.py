@@ -36,7 +36,12 @@ class OilchemSpiderUser(SpiderBase):
 
             price_id = sub_crawler_info['price_id']
 
-            crawler_config = UrlCrawlerConfig(sub_crawler_info['price_id'], sub_crawler_info['start_time'], \
+            if config.get('global_time_override'):
+                print 'Gloabl time take effect!'
+                crawler_config = UrlCrawlerConfig(sub_crawler_info['price_id'], config['global_start_time'], \
+                                              config['global_end_time'], sub_crawler_info['crawler_name'])
+            else:
+                crawler_config = UrlCrawlerConfig(sub_crawler_info['price_id'], sub_crawler_info['start_time'], \
                                               sub_crawler_info['end_time'], sub_crawler_info['crawler_name'])
             crawler = UrlCrawler(crawler_config)
 
@@ -56,22 +61,20 @@ class OilchemSpiderUser(SpiderBase):
 
             records = []
             data_type = sub_crawler_info.get('data_type', 'domestic')
-            if data_type == 'domestic':
-                records = crawler.download_data(req_url, logined_cookie)
-                #break
-                # pass
-            elif data_type == 'international':              
+            try:
                 records = crawler.download_data(req_url, logined_cookie, dtype=data_type)
-                # break
-            else:
+            except KeyError:
                 print
                 print '[ERROR] Unknown data type, please check config.'
-                break
+            except:
+                print
+                print '[ERROR] Unknown error while crawling, quiting.'
 
             print '$' * 80
             
             for record in records:
-                item = UserItemHelper.get_oilchem_item(sub_spider_name, filename=sub_spider_name, record=record, h_type=header_type)
+                item = UserItemHelper.get_oilchem_item(sub_spider_name, filename=sub_spider_name, \
+                                                        record=record, h_type=header_type)
                 if item is not None:
                     if target_table is not None or target_column is not None:
                         item['to_update'] = True

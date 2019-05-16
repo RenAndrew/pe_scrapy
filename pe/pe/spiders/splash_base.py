@@ -15,7 +15,7 @@ from scrapy import Spider, Request
 from scrapy_splash import SplashRequest
 
 from boxing.spider import SpiderBase,SpiderConfig
-from ..util import SeleniumLogin
+from ..util import Chem99SeleniumLogin
 sys.path.append('/shared/boxing/user_spiders')		#useless in pe_scrapy but for boxing.user_spiders project
 from user_items import Chem99PeSumoPrice
 
@@ -115,7 +115,7 @@ class SplashSpiderBase(SpiderBase):
 
 	def __init__(self):
 		self._read_config()
-		autologin_tool = SeleniumLogin(self.WORK_PATH, self.LOGIN_TYPE)
+		autologin_tool = Chem99SeleniumLogin(self.WORK_PATH, self.LOGIN_TYPE)
 		autologin_tool.set_account(self.config['username'], self.config['password'])
 		cookies = autologin_tool.selelogin()
 

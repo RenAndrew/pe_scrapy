@@ -89,7 +89,9 @@ BoxingItemHelper.update_column('price_high','最高价')
 # BoxingItemHelper.update_column('region','区域')
 BoxingItemHelper.update_column('price_low','最低价')
 BoxingItemHelper.update_column('market','市场')
-
+#Company price
+BoxingItemHelper.update_column('company_name', '企业名称')
+BoxingItemHelper.update_column('quote_price', '企业报价')
 
 #Base class of User Items
 #To override some system settings
@@ -141,7 +143,8 @@ class OilchemItem_User(BaseOilchemItem):
 
     @staticmethod
     def get_header_column_headers():
-        columns = ['product_name', 'date', 'model', 'region', 'market', 'campany', 'price_low', 'price_high', 'price_market', 'unit', 'change', 'delta_rate', 'remarks']
+        columns = ['product_name', 'date', 'model', 'region', 'market', 'campany', 'price_low', \
+                    'price_high', 'price_market', 'unit', 'change', 'delta_rate', 'remarks']
         return [ UserItemHelper.get_cn_column_name(c).decode('utf-8') for c in columns ]
 
     @staticmethod
@@ -178,10 +181,37 @@ class OilchemItem_Iter(BaseOilchemItem):
     def get_non_csv_columns():
         return ['filename', 'to_update', 'target_table', 'target_column', 'src_column', 'crawl_time', 'name']
 
+class OilchemItem_Company(BaseOilchemItem):
+    product_name = scrapy.Field()
+    date = scrapy.Field()
+    model = scrapy.Field()
+    region = scrapy.Field()
+    
+    company_name = scrapy.Field()
+    quote_price = scrapy.Field()
+    unit = scrapy.Field()
+    change = scrapy.Field()
+    delta_rate = scrapy.Field()
+    remarks = scrapy.Field()
+
+    @staticmethod
+    def get_type_name():
+        return 'oc_company'
+
+    @staticmethod
+    def get_header_column_headers():
+        columns = ['product_name', 'date', 'model', 'region', 'market', 'company_name', 'quote_price', \
+                   'unit', 'change', 'delta_rate', 'remarks']
+        return [ UserItemHelper.get_cn_column_name(c).decode('utf-8') for c in columns ]
+
+    @staticmethod
+    def get_non_csv_columns():
+        return ['filename', 'to_update', 'target_table', 'target_column', 'src_column', 'crawl_time', 'name']
 
 class UserItemHelper(object):
     OC1 = 'oc_user'
     OC2 = 'oc_inter'
+    OC3 = 'oc_company'
 
     @staticmethod
     def get_cn_column_name(en_column):
@@ -196,13 +226,23 @@ class UserItemHelper(object):
         item = None
         if h_type == UserItemHelper.OC1:
             if record['price_low'] != '*':
-                item = OilchemItem_User(filename=filename, name=spider_name, product_name=record['product_name'], date=record['date'], model=record['model'], region=record['region'], market=record['market'], company=record['company'], price_low=record['price_low'], price_high=record['price_high'], price_market=record['price_market'], unit=record['unit'], change=record['change'], delta_rate=record['delta_rate'], remarks=record['remarks'] )
+                item = OilchemItem_User(filename=filename, name=spider_name, product_name=record['product_name'], \
+                  date=record['date'], model=record['model'], region=record['region'], market=record['market'], \
+                  company=record['company'], price_low=record['price_low'], price_high=record['price_high'], \
+                  price_market=record['price_market'], unit=record['unit'], change=record['change'], \
+                  delta_rate=record['delta_rate'], remarks=record['remarks'] )
         elif h_type == UserItemHelper.OC2:
             if record['price_low'] != '*':
                 item = OilchemItem_Iter(filename=filename, name=spider_name, product_name=record['product_name'], \
                   date=record['date'], model=record['model'], region=record['region'], delta_rate=record['delta_rate'],\
                   low_price=record['price_low'], high_price=record['price_high'], middle_price=record['price_mid'], price_type=record['price_type'],\
                   price_in_cny=record['price_cny'], unit=record['unit'], change=record['change'], remarks=record['remarks'] )
+        elif h_type == UserItemHelper.OC3:
+            if record['quote_price'] != '*':
+                item = OilchemItem_Company(filename=filename, name=spider_name, product_name=record['product_name'],\
+                  date=record['date'], model=record['model'], region=record['region'], delta_rate=record['delta_rate'],\
+                  quote_price=record['quote_price'], unit=record['unit'], change=record['change'], remarks=record['remarks'],\
+                  company_name=record['company_name'])
         else:
             print '[ERROR] h_type "{}" not implemented'
                     

@@ -71,6 +71,53 @@ class UrlCrawler(object):
     def __init__(self, config):
         self.config = config
 
+        self.DATATYPE_FIELD_MAPPINGS = {
+            "domestic" : {
+                "indexDate"         : "date",
+                "varietiesName"     : "product_name",
+                "specificationsName": "model",
+                # "standard" : "",
+                "regionName"        : "region",
+                "internalMarketName": "market",
+                "memberAbbreviation": "company",
+                "lprice"            : "price_low",
+                "gprice"            : "price_high",
+                "indexValue"        : "price_market",
+                "unitValuationName" : "unit",
+                "riseOrFallSum"     : "change",
+                "riseOrFallRate"    : "delta_rate",
+                "remark"            : "remarks"
+            },
+            "international" : {
+                "indexDate"          : "date",
+                "varietiesName"      : "product_name",
+                "specificationsName" : "model",
+                "customRegion"       : "region",
+                "priceTypeName"      : "price_type",
+                "lprice"             : "price_low",
+                "gprice"             : "price_high",
+                "indexValue"         : "price_mid",
+                "unitValuationName"  : "unit",
+                "rprice"             : "price_cny",
+                "riseOrFallSum"      : "change",
+                "riseOrFallRate"     : "delta_rate",
+                "remark"             : "remarks"
+            },
+            "company" : {
+                "indexDate"         : "date",
+                "varietiesName"     : "product_name",
+                "specificationsName": "model",
+                "regionName"        : "region",
+                "memberAbbreviation": "company_name",
+                # "memberName"        : "comany_fullname",
+                "indexValue"        : "quote_price",
+                "unitValuationName" : "unit",
+                "riseOrFallSum"     : "change",
+                "riseOrFallRate"    : "delta_rate",
+                "remark"            : "remarks"
+            }
+        }
+
     def _get_headers(self, cookie):
         headers = {
             'Accept': 'application/json, text/plain, */*',
@@ -106,20 +153,42 @@ class UrlCrawler(object):
         return demjson.decode(response.read())  # the data is in raw javascript format, not json, convert it to json (python object).
 
     def download_data(self, req_url, cookie, dtype='domestic'):
+        mapping_tab = self.DATATYPE_FIELD_MAPPINGS[dtype]   #if not allowed datatype, it throws KeyError excetpion
+        print "Data type: %s" % (dtype)  
+
         page_idx = 1
         page_size = 300
         headers = self._get_headers(cookie)
         data = self._req_data(req_url, headers, page_size, page_idx)  # get the first page of data
         
-        num_pages = data['pages']
+        # print data
+        num_pages = data.get('pages')
+        if num_pages is None:
+            print 'Data format error!'
+            raise Exception("Data format error!")
         
-        records = self._extract_items_in_page(data, dtype)     #first page
+        # records = self._extract_items_in_page(data, dtype)     #first page
+        records = self._extract_items(data, mapping_tab)
         for i in range(1, num_pages):
             data = self._req_data(req_url, headers, page_size, i)
-            records = records + self._extract_items_in_page(data, dtype)
+            # records = records + self._extract_items_in_page(data, dtype)
+            records = records + self._extract_items(data, mapping_tab)
     
         print 'finished downloading data for: ' + req_url
         
+        return records
+
+    def _extract_items(self, jsonData, mapping_tab):
+        rows = jsonData['pageInfo']['list']
+        records = []
+        for item in rows:
+            record = {}
+            for origin_field, target_field in mapping_tab.items():
+                # print target_field, origin_field
+                # print item[origin_field]
+                record[target_field] = item[origin_field]
+            records.append(record)
+
         return records
 
     def _extract_items_in_page(self, jsonData, dtype):
@@ -171,7 +240,6 @@ class UrlCrawler(object):
     def _extract_items_in_page_international(self, jsonData):
         rows = jsonData['pageInfo']['list']
         records = []
-        debug_flag = False
         for item in rows:
             pubDate = item['indexDate']
             productName = item['varietiesName']
@@ -203,14 +271,6 @@ class UrlCrawler(object):
                 'delta_rate' : increaseRate,
                 'remarks' : remarks 
             }
-
-            if debug_flag:
-                print '# ' * 40 
-                print item
-                print '# ' * 40 
-                print record
-                print '# ' * 40
-                debug_flag = False
 
             records.append(record)
 

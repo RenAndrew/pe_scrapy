@@ -8,7 +8,7 @@ from selenium.webdriver.common.action_chains import ActionChains  #鼠标操作
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 
-class SeleniumLogin:
+class Chem99SeleniumLogin:
 
 	LOGIN_XPATH_SELECTOR = {
 		'PLAS_LOGIN' : {
