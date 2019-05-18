@@ -1,0 +1,6 @@
+{
+	"oilchem_ma" : {
+		"upload_api_url" : "http://localhost:9875/api/v1/data/tables/upload/ma_cn_cargo_price_daily",
+		
+	}
+}

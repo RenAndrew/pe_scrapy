@@ -146,6 +146,11 @@ class SeleniumLogin(object):
             options.add_argument('--no-sandbox')
             browser = webdriver.Chrome(chrome_options=options)
             # browser = webdriver.Firefox()
+
+            if os.path.exists(os.path.join(os.getcwd(), 'dev_cookie_tmp.dat')):
+                with open(os.path.join(os.getcwd(), 'dev_cookie_tmp.dat'), 'r') as cookie_file:
+                    logined_cookie = cookie_file.read()
+                    return logined_cookie
         else:
             browser = webdriver.PhantomJS()
         # browser = webdriver.PhantomJS()
@@ -195,6 +200,9 @@ class SeleniumLogin(object):
                 print (logined_cookie)
                 print '$' * 80
                 browser.close()
+
+                with open(os.path.join(os.getcwd(), 'dev_cookie_tmp.dat'), 'w+') as cookie_file:
+                    cookie_file.write(logined_cookie)
                 return logined_cookie
             except:
                 print traceback.format_exc()

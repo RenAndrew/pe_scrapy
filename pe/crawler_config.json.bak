@@ -463,7 +463,7 @@
             },
             {
                 "comment": "FOB美湾（美分/加仑）usd",
-                "crawler_name": "FOB美湾usd",
+                "crawler_name": "FOB美湾（美分/加仑）usd",
                 "data_api_url": "https://dc.oilchem.net/priceInternational/history.htm",
                 "price_id" : "4128",
                 "data_type" : "international",
@@ -600,7 +600,34 @@
                 "used_data_columns" : ["主流价"]
             }
         ],
-        "password": "ax1010zq"
+        "password": "ax1010zq",
+        "lacking_columns": [
+            "美元/人民币汇率",
+            "欧元/美元汇率",
+            "动力煤内蒙",
+            "动力煤山东",
+            "青海管道气",
+            "四川管道气",
+            "二甲醚华东",
+            "PP华东",
+            "LL华东",
+            "MA01",
+            "MA05",
+            "MA09",
+            "华西村MEG",
+            "甲醇主力",
+            "动力煤主力",
+            "PP主力",
+            "增值税系数",
+            "鲁南到江苏运费",
+            "川渝到江苏运费",
+            "河南到江苏运费",
+            "内蒙南线到江苏运费",
+            "内蒙南线到鲁南运费",
+            "东南亚到中国运费usd",
+            "西北欧到中国运费usd",
+            "美国到中国运费usd"
+        ]
     },
     "chem99" : {
         "username": "founder123",

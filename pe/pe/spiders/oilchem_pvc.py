@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import traceback
 from boxing.spider import SpiderBase, SpiderConfig
 from ..util import AutoLoginTool, UrlCrawler, UrlCrawlerConfig,SeleniumLogin
 
@@ -28,9 +29,19 @@ class OilchemSpiderUser(SpiderBase):
         logined_cookie = login_tool.selelogin()
 
         # real crawler start here
+        allowed_crawler_set = set()
+        debug_sub_crawlers = config.get('debug_sub_crawlers')
+        if debug_sub_crawlers is not None:
+            debug_mode = debug_sub_crawlers.get("switch")
+            if debug_mode == "on":
+                allowed_crawler_set = set(debug_sub_crawlers["debug_sub_crawler_list"])
+                print "In debuging..."
+                print allowed_crawler_set
         
         for sub_crawler_info in config['sub_crawlers']:
             sub_spider_name = sub_crawler_info['crawler_name']
+            if sub_spider_name not in allowed_crawler_set:
+                continue
             header_type = sub_crawler_info.get('header_type', 'oc_user')
             req_url = sub_crawler_info['data_api_url']
 
@@ -68,6 +79,7 @@ class OilchemSpiderUser(SpiderBase):
                 print '[ERROR] Unknown data type, please check config.'
             except:
                 print
+                print traceback.format_exc()
                 print '[ERROR] Unknown error while crawling, quiting.'
 
             print '$' * 80
@@ -87,3 +99,9 @@ class OilchemSpiderUser(SpiderBase):
                 else:
                     print
                     print '[ERROR] failed to parse (data)', record
+
+    def closed(self, reason):
+        print self.name, reason
+        print '$' * 100
+        print "Starting to collecting data..."
+        # To add collectiong data invoking

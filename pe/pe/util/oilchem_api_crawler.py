@@ -52,7 +52,7 @@ class UrlCrawlerConfig:
 
         return self._ago(years=unit_map['Y'], months=unit_map['m'], days=unit_map['d'])
 
-
+    #get date of some days/months/years ago
     def _ago(self, years=0, months=0, days=0):
         assert (years>=0 and months>=0 and days>=0), ("Only date before today is meaningful!") 
         from datetime import date, timedelta
@@ -70,7 +70,7 @@ class UrlCrawlerConfig:
 class UrlCrawler(object):
     def __init__(self, config):
         self.config = config
-
+        self.unqiue_set = {}
         self.DATATYPE_FIELD_MAPPINGS = {
             "domestic" : {
                 "indexDate"         : "date",
@@ -140,6 +140,7 @@ class UrlCrawler(object):
             'pageNum' : page,
             'pageSize' : page_size,
         }
+
         return urllib.urlencode(body)
 
     def _req_data(self, req_url, headers, page_size, page_idx):
@@ -161,21 +162,23 @@ class UrlCrawler(object):
         headers = self._get_headers(cookie)
         data = self._req_data(req_url, headers, page_size, page_idx)  # get the first page of data
         
-        # print data
         num_pages = data.get('pages')
-        print data.get('total')
-        print data.get('pages')
+        # num_pages = data['pageInfo'].get('lastPage')
+        # print num_pages
+        # print data.get('total')
+        # print data.get('pages')
         if num_pages is None:
             print 'Data format error!'
             raise Exception("Data format error!")
         
         records = self._extract_items(data, mapping_tab)
-        for i in range(1, num_pages):
+        for i in range(2, num_pages+1):
             data = self._req_data(req_url, headers, page_size, i)
             records = records + self._extract_items(data, mapping_tab)
     
         print 'finished downloading data for: ' + req_url
-        
+        print "Totally %d unique items." % len(self.unqiue_set)
+        self.unqiue_set = {}    #clear the history of download
         return records
 
     def _extract_items(self, jsonData, mapping_tab):
@@ -183,6 +186,8 @@ class UrlCrawler(object):
         records = []
         for item in rows:
             record = {}
+            if not self._is_unique(item['indexDate']):      #if the item exists already!
+                continue
             for origin_field, target_field in mapping_tab.items():
                 # print target_field, origin_field
                 # print item[origin_field]
@@ -190,4 +195,13 @@ class UrlCrawler(object):
             records.append(record)
 
         return records
+
+    #any index_date checked by _is_unique will be recorded then it is never unique
+    def _is_unique(self, index_date):
+        if self.unqiue_set.get(index_date):
+            print '*********** Get Duplicated items!!! (%s) ***********' % index_date
+            return False
+        else:
+            self.unqiue_set[index_date] = True
+            return True
 
