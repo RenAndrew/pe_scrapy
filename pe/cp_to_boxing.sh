@@ -39,3 +39,4 @@ cp $SCRAPY_SRC_HOME_PATH/user_spider_root/*	$BOXING_USER_SPIDER_PATH/
 cp $SCRAPY_SRC_HOME_PATH/pe/conf/*.conf $BOXING_USER_SPIDER_PATH/conf/
 
 cp $SCRAPY_SRC_HOME_PATH/crawler_config.json $BOXING_CONFIG_PATH/
+cp $SCRAPY_SRC_HOME_PATH/upload_config.json $BOXING_CONFIG_PATH/

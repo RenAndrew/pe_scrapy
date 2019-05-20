@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys
+import sys, time
 import traceback
 from boxing.spider import SpiderBase, SpiderConfig
 from ..util import AutoLoginTool, UrlCrawler, UrlCrawlerConfig,SeleniumLogin
@@ -23,6 +23,16 @@ class OilchemSpiderUser(SpiderBase):
     #     'LOG_LEVEL' : 'ERROR',
     # }
 
+    def get_allowed_set(self, debug_sub_crawlers):
+        allowed_crawler_set = set()
+        if debug_sub_crawlers is not None:
+            debug_mode = debug_sub_crawlers.get("switch")
+            if debug_mode == "on":
+                allowed_crawler_set = set(debug_sub_crawlers["debug_sub_crawler_list"])
+                print "In debuging..."
+                print allowed_crawler_set
+        return allowed_crawler_set
+
     def parse(self, response):
         config = SpiderConfig().get_config(self.CONFIG_NAME)
 
@@ -30,22 +40,15 @@ class OilchemSpiderUser(SpiderBase):
         logined_cookie = login_tool.selelogin()
 
         # real crawler start here
-        allowed_crawler_set = set()
-        debug_sub_crawlers = config.get('debug_sub_crawlers')
-        if debug_sub_crawlers is not None:
-            debug_mode = debug_sub_crawlers.get("switch")
-            if debug_mode == "on":
-                allowed_crawler_set = set(debug_sub_crawlers["debug_sub_crawler_list"])
-                print "In debuging..."
-                print allowed_crawler_set
+        allowed_crawler_set = self.get_allowed_set(config.get('debug_sub_crawlers'))
         
         for sub_crawler_info in config['sub_crawlers']:
             sub_spider_name = sub_crawler_info['crawler_name']
             if sub_spider_name not in allowed_crawler_set:
                 continue
+
             header_type = sub_crawler_info.get('header_type', 'oc_user')
             req_url = sub_crawler_info['data_api_url']
-
             price_id = sub_crawler_info['price_id']
 
             if config.get('global_time_override'):
@@ -61,15 +64,15 @@ class OilchemSpiderUser(SpiderBase):
             print 'Start crawling : %s' % crawler_config.crawler_name
             print 'Date range: %s to %s' % (crawler_config.start_time, crawler_config.end_time)
 
-            target_table = None
-            target_column = None
-            src_column = None
-            update_info = sub_crawler_info.get('update_info')
-            if update_info is not None:
-                src_column = UserItemHelper().get_en_column_name(update_info['src_column'].encode('utf-8'))
-                target_table = update_info['target_table'].encode('utf-8')
-                target_column = update_info['target_column'].encode('utf-8')
-                target_table, target_column = get_boxing_table_name_column_name(target_table, target_column)
+            # target_table = None
+            # target_column = None
+            # src_column = None
+            # update_info = sub_crawler_info.get('update_info')
+            # if update_info is not None:
+            #     src_column = UserItemHelper().get_en_column_name(update_info['src_column'].encode('utf-8'))
+            #     target_table = update_info['target_table'].encode('utf-8')
+            #     target_column = update_info['target_column'].encode('utf-8')
+            #     target_table, target_column = get_boxing_table_name_column_name(target_table, target_column)
 
             records = []
             data_type = sub_crawler_info.get('data_type', 'domestic')
@@ -89,17 +92,36 @@ class OilchemSpiderUser(SpiderBase):
                 item = UserItemHelper.get_oilchem_item(sub_spider_name, filename=sub_spider_name, \
                                                         record=record, h_type=header_type)
                 if item is not None:
-                    if target_table is not None or target_column is not None:
-                        item['to_update'] = True
-                        item['target_table'] = target_table
-                        item['target_column'] = target_column
-                        item['src_column'] = src_column
-                    else:
-                        item['to_update'] = False
+                    # if target_table is not None or target_column is not None:
+                    #     item['to_update'] = True
+                    #     item['target_table'] = target_table
+                    #     item['target_column'] = target_column
+                    #     item['src_column'] = src_column
+                    # else:
+                    #     item['to_update'] = False
+                    item['to_update'] = False
                     yield item
                 else:
                     print
                     print '[ERROR] failed to parse (data)', record
+
+        #After all item are yield, yield a fake item to generate a fake file as a compelete flag to indicate the post process to start up.
+        yield self._generate_compelete_flag()
+
+    def _generate_compelete_flag(self):
+        time.sleep(5)
+        #generating fake record
+        from datetime import datetime,date
+        ts = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')
+        dt = date.today().strftime("%Y-%m-%d")
+        flag_file_name = self.CONFIG_NAME + "_compeleted_flag_" + ts
+        self.compelete_flag = flag_file_name + '_' + dt + '.csv'
+
+        fake_record = {"date":"*", "product_name":"*","model":"*","region":"*","company_name":"*","quote_price":"*",
+                        "unit":"*","change":"*","delta_rate":"*","remarks":"*"}
+        fake_item = UserItemHelper.get_oilchem_item("flag_spider", filename=flag_file_name, record=fake_record, h_type="oc_company")
+        fake_item['to_update'] = False
+        return fake_item
 
     def closed(self, reason):
         print self.name, reason
