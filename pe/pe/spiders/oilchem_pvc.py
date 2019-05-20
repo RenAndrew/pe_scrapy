@@ -5,6 +5,7 @@ from boxing.spider import SpiderBase, SpiderConfig
 from ..util import AutoLoginTool, UrlCrawler, UrlCrawlerConfig,SeleniumLogin
 
 from ..util import get_boxing_table_name_column_name
+from ..post_process import AutoUploader
 sys.path.append('/shared/boxing/user_spiders')      #useless in pe_scrapy but for boxing.user_spiders project
 from user_items import OilchemItem_User, UserItemHelper
 from boxing.spider.items import BoxingItemHelper
@@ -103,5 +104,9 @@ class OilchemSpiderUser(SpiderBase):
     def closed(self, reason):
         print self.name, reason
         print '$' * 100
-        print "Starting to collecting data..."
-        # To add collectiong data invoking
+        print "Starting to uploading data..."
+        crawler_name = self.CONFIG_NAME
+
+        AutoUploader().wait_until_dumping_finished(self.compelete_flag)\
+                      .after_crawler_done(crawler_name)\
+                      .upload_excel()
