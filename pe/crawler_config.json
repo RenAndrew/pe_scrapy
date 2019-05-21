@@ -294,7 +294,7 @@
                 "name": "oc_inter"
             }
         ],
-        "global_time_override" : true,
+        "global_time_override" : false,
         "global_start_time" : "lastyear",
         "global_end_time" : "today",
 
@@ -445,7 +445,7 @@
                 "data_api_url": "https://dc.oilchem.net/priceInternational/history.htm",
                 "price_id" : "4128",
                 "data_type" : "international",
-                "start_time" : "lastmonth",
+                "start_time" : "1d",
                 "end_time" : "today",
                 "header_type" : "oc_inter",
                 "used_data_columns" : [{"used_column":"中间价", "renamed_as":"FOB美湾（美分/加仑）usd"}]

@@ -10,30 +10,53 @@ from xls_builder import ExcelBuilder
 from files_collector import FilesCollector
 from db_checkset import DbChecksetMaker
 
+from boxing import DatabaseConfig
+
 class AutoUploader(object):
 
-	# def wait_until_dumping_finished(self, compelte_flag):
-	# 	while True:
-	# 		time.sleep(5)
-	# 		if self.detect(compelte_flag):
-	# 			break
-
-	# 	return self
-	
-	def after_crawler_done(self, crawler_name):
+	def __init__(self, crawler_name):
+		self.crawler_name = crawler_name
 		upload_config = UploaderConfig().get_upload_config("upload_basic")
-		csv_download_path = upload_config.get('csv_download_path')
-		csv_aggregate_path = upload_config.get('csv_aggregate_path')
-		xls_output_path = upload_config.get('xls_output')
+		print os.getcwd()
+		if os.path.exists(os.path.join(os.getcwd(), 'DEV_FLAG')):   #runs in dev mode.
+			self.csv_download_path = './result'
+			self.csv_aggregate_path = './pe/work/csv'
+			self.xls_output_path = './pe/work/upload_work_dir'
+		else:
+			self.csv_download_path = upload_config.get('csv_download_path')
+			self.csv_aggregate_path = upload_config.get('csv_aggregate_path')
+			self.xls_output_path = upload_config.get('xls_output')
 
-		self.ensure_path_exists(csv_download_path)
-			.ensure_path_exists(csv_aggregate_path)
-			.ensure_path_exists(xls_output_path)
+		self.ensure_path_exists(self.csv_download_path)\
+			.ensure_path_exists(self.csv_aggregate_path)\
+			.ensure_path_exists(self.xls_output_path)
 
-		
-	# 	FilesCollector().from_path(csv_download_path)\
-	# 					.to_path(csv_aggregate_path)\
-	# 					.collect_files_of(crawler_name)
+	def wait_until_dumping_finished(self, compelte_flag):
+		while True:
+			time.sleep(5)
+			if self.detect(compelte_flag):
+				break
+			print '...'
+			opt = raw_input('Still wait?')
+			if opt != 'y':
+				break
+
+		return self
+
+	def detect(self, compelete_flag):
+		flag_file = os.path.join(self.csv_download_path, self.crawler_name, compelete_flag)
+		if os.path.exists(flag_file):
+			#delete compelete_flag
+			os.remove(flag_file)
+			return True
+		return False
+	
+	def process_results(self, crawler_name):
+		csv_path = FilesCollector().from_path(self.csv_download_path)\
+						.to_path(self.csv_aggregate_path)\
+						.collect_files_of(crawler_name)
+
+		print csv_path
 
 	# 	target_table_name = Config().get(crawler_name).get('target_table')
 

@@ -19,9 +19,6 @@ class OilchemSpiderUser(SpiderBase):
     ]
 
     CONFIG_NAME = "oilchem_pvc"
-    # SETTINGS = {
-    #     'LOG_LEVEL' : 'ERROR',
-    # }
 
     def get_allowed_set(self, debug_sub_crawlers):
         allowed_crawler_set = set()
@@ -30,7 +27,6 @@ class OilchemSpiderUser(SpiderBase):
             if debug_mode == "on":
                 allowed_crawler_set = set(debug_sub_crawlers["debug_sub_crawler_list"])
                 print "In debuging..."
-                print allowed_crawler_set
         return allowed_crawler_set
 
     def parse(self, response):
@@ -109,15 +105,16 @@ class OilchemSpiderUser(SpiderBase):
         yield self._generate_compelete_flag()
 
     def _generate_compelete_flag(self):
-        time.sleep(5)
+        time.sleep(5)   #making sure all the records are fully written to files.
         #generating fake record
         from datetime import datetime,date
-        ts = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')
+        ts = datetime.now().strftime('%Y-%m-%d_%H%M%S')
         dt = date.today().strftime("%Y-%m-%d")
         flag_file_name = self.CONFIG_NAME + "_compeleted_flag_" + ts
+        print flag_file_name
         self.compelete_flag = flag_file_name + '_' + dt + '.csv'
 
-        fake_record = {"date":"*", "product_name":"*","model":"*","region":"*","company_name":"*","quote_price":"*",
+        fake_record = {"date":"*", "product_name":"*","model":"*","region":"*","company_name":"*","quote_price":"999",
                         "unit":"*","change":"*","delta_rate":"*","remarks":"*"}
         fake_item = UserItemHelper.get_oilchem_item("flag_spider", filename=flag_file_name, record=fake_record, h_type="oc_company")
         fake_item['to_update'] = False
@@ -129,6 +126,6 @@ class OilchemSpiderUser(SpiderBase):
         print "Starting to uploading data..."
         crawler_name = self.CONFIG_NAME
 
-        AutoUploader().wait_until_dumping_finished(self.compelete_flag)\
-                      .after_crawler_done(crawler_name)\
-                      .upload_excel()
+        AutoUploader(crawler_name).wait_until_dumping_finished(self.compelete_flag)\
+                                  .process_results(crawler_name)\
+        #               .upload_excel()
