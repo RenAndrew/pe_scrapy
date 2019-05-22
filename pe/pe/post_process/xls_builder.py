@@ -39,6 +39,42 @@ class ExcelBuilder(object):
 
 		return file
 
+	def remove_before_latest_date(self, csvdata):
+		if self._checkset is None:
+			return csvdata
+		latest_date = self._checkset.max_date
+		csvdata = csvdata[csvdata['日期'] > latest_date]
+		return csvdata
+
+	def remove_dates_exists(self, csvdata):
+		if self._checkset is None:
+			return csvdata
+		checkset = self._checkset.checkset
+
+
+	def generate_dataframe_from(self, csv_file_with_path, crawler_name):
+		rawdata = pd.read_csv(csv_file_with_path)
+
+		frame = DataFrame()	#emtpy frame
+
+		frame['日期'] = rawdata['日期']
+		columns_needed = self.column_ref_tab.get(crawler_name)
+		if columns_needed is not None and len(columns_needed) > 0:
+			# Add needed column(s) and rename column name
+			for i in range(0, len(columns_needed)):
+				used_column = columns_needed[i]['used_column']
+				column_rename = columns_needed[i]['renamed_as']
+				
+				frame[column_rename] = rawdata[used_column]
+
+			frame = frame.set_index('日期')
+		else:
+			print ('No column needed of %s!' % crawler_name)
+			print ('Could you please check the config? ')
+			print ('-' * 50)
+
+		return frame
+
 
 	def join_csv_files(self):
 		data_by_date = {}	#collect each date of data
@@ -57,6 +93,7 @@ class ExcelBuilder(object):
 			columns_needed = self.column_ref_tab.get(crawler_name)
 			if columns_needed is not None and len(columns_needed) > 0:
 				csvdata = pd.read_csv(os.path.join(self.CSV_PATH, csv_file))
+				csvdata = self.remove_before_latest_date(csvdata)
 				data_refered = {
 					'日期' : csvdata['日期'].values
 				}

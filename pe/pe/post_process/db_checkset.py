@@ -22,10 +22,10 @@ class DbChecksetMaker(object):
 	# 	self._port = port
 	# 	self._db = db
 
-	def set_connect_info(self, ip, port=3306, db="boxing"):
-		self._ip = ip
-		self._port = port
-		self._db = db
+	# def set_connect_info(self, ip, port=3306, db="boxing"):
+	# 	self._ip = ip
+	# 	self._port = port
+	# 	self._db = db
 
 	def make_checkset(self, table_name):
 		# conn_str = "mysql+pymysql://{}:{}@{}:{}/{}"\
