@@ -7,7 +7,8 @@
 		"working_dir" : "/shared/boxing/user_spiders/work/upload_work_dir"
 	},
 	"oilchem_ma" : {
-		"upload_api_url" : "http://localhost:9875/api/v1/data/tables/upload/ma_cn_cargo_price_daily"
-		
+		"upload_api_uri" : "/api/v1/data/tables/upload/ma_cn_cargo_price_daily",
+		"upload_api_url" : "http://localhost:9875/api/v1/data/tables/upload/ma_cn_cargo_price_daily",
+		"target_table" : "ma_cn_cargo_price_daily"
 	}
 }

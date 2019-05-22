@@ -10,7 +10,7 @@ from xls_builder import ExcelBuilder
 from files_collector import FilesCollector
 from db_checkset import DbChecksetMaker
 
-from boxing import DatabaseConfig
+from boxing import BoxingConfig,DatabaseConfig
 
 class AutoUploader(object):
 
@@ -58,79 +58,85 @@ class AutoUploader(object):
 
 		print csv_path
 
-	# 	target_table_name = Config().get(crawler_name).get('target_table')
+		target_table_name = UploaderConfig().get_upload_config(crawler_name)\
+											.get('ma_cn_cargo_price_daily')
 
-	# 	checkset = DbChecksetMaker().make_checkset(target_table_name)
+		checkset = DbChecksetMaker().make_checkset(target_table_name)
 
-	# 	excel_builder = ExcelBuilder(config_name=crawler_name, csv_path=csv_aggregate_path, xls_outdir=xls_output_path)
+		excel_builder = ExcelBuilder(config_name=crawler_name, csv_path=self.csv_aggregate_path, \
+									 xls_outdir=self.xls_output_path)
 
-	# 	self.excel_file = excel_builder.check_before(checkset)\
-	# 				 				   .build()
+		self.excel_file = excel_builder.check_before(checkset)\
+					 				   .build()
 
-	# 	return self
+		return self
 
-	# def upload_excel(self):
-	# 	retcode = self.read_configs()
-	# 				  .login()\
-	# 				  .upload_in_append_mode(self.excel_file)
+	def upload_excel(self):
+		retcode = self.read_configs()\
+					  .login()\
+					  .upload_in_append_mode(self.excel_file)
 
-	# 	return retcode
+		return retcode
 
 
-	# def read_configs(self):
-	# 	self.login_url = 'http://' + main_url + '/api/v1/sso/login'
-	 #        self.login_info = {
-	 #            'username' : user,
-	 #            'password': password
-	 #        }
-	 #        self.login_headers = {
-	 #            "Content-Type" : "application/json;charset=UTF-8",
-	 #            "host" : main_url,
-	 #            "User-Agent" : "Mozilla/5.0"
-	 #        }
+	def read_configs(self):
+		main_url = BoxingConfig().get_main_url()
+		db_config = DatabaseConfig()
+		upload_config = UploaderConfig().get_upload_config(self.crawler_name)
 
-	 #        self.upload_url = {
-	 #            'MA' : 'http://' + main_url + '/api/v1/data/tables/upload/ma_cn_cargo_price_daily',
-	 #        }
+		user = db_config.db_username()
+		password = db_config.db_password()
 
-	 #        self.upload_headers = {
-	 #            'host' : main_url,
-	 #            'Host': 'localhost:9875',
-	 #            'Origin': 'http://localhost:9875',
-	 #            'Referer': 'http://localhost:9875/data/',
-	 #            #   'Cookie': 'phaseInterval=120000; previewCols=url%20status%20size%20timeline; stats=true; session=.eJwdjkFrwyAYhv_K8NyD2lrSwA4dWUMG3ycZuqCXsjm7ROMlXWlq6X9f2OGFBx54eO_keJr8uSfl73TxK3Icvkl5J09fpCSo9hTye5J1Kxbe2KBnyOMg1f4G9ce4LNqkKXQYoWu44fpquB2xigLySwKlKeZ4Q97MGGAGBUuvoUb9UKz6AKmhtjr0qDCYpLnscJQdMLt4W7cZwtJIbxE5MFlhlLXZYGivyF-ZVH20KnLIh0HW-pk8VuRy9tP_fyKEc8Va-NPWUcZ8UTi2K1whdvRzTf3Wkccf6DpOVQ.XN97jA.EMPsud7mffr1xPQTogHpEvDe1VU',
-	 #            'User-Agent' : 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'
-	 #        }
+		self.login_url = 'http://' + main_url + '/api/v1/sso/login'
+		self.login_info = {
+			'username' : user,
+			'password': password
+		}
+		self.login_headers = {
+			"Content-Type" : "application/json;charset=UTF-8",
+			"host" : main_url,
+			"User-Agent" : "Mozilla/5.0"
+		}
 
-	 #        self.session = requests.session()
-	 #        return self
+		self.upload_url = main_url + upload_config.get('upload_api_uri')
 
-	 #    def login(self):
-	 #        ret = self.session.post(self.login_url, data=json.dumps(self.login_info), headers=self.login_headers)
-	 #        return self
+		self.upload_headers = {
+			'host' : main_url.replace('http://',''),
+			# 'Host': 'localhost:9875',
+			# 'Origin': 'http://localhost:9875',
+			# 'Referer': 'http://localhost:9875/data/',
+			#   'Cookie': 'phaseInterval=120000; previewCols=url%20status%20size%20timeline; stats=true; session=.eJwdjkFrwyAYhv_K8NyD2lrSwA4dWUMG3ycZuqCXsjm7ROMlXWlq6X9f2OGFBx54eO_keJr8uSfl73TxK3Icvkl5J09fpCSo9hTye5J1Kxbe2KBnyOMg1f4G9ce4LNqkKXQYoWu44fpquB2xigLySwKlKeZ4Q97MGGAGBUuvoUb9UKz6AKmhtjr0qDCYpLnscJQdMLt4W7cZwtJIbxE5MFlhlLXZYGivyF-ZVH20KnLIh0HW-pk8VuRy9tP_fyKEc8Va-NPWUcZ8UTi2K1whdvRzTf3Wkccf6DpOVQ.XN97jA.EMPsud7mffr1xPQTogHpEvDe1VU',
+			'User-Agent' : 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'
+		}
 
-	 #    def logout(self):
-	 #    	self.session.close()
+		self.session = requests.session()
+		return self
 
-	 #    def upload_in_append_mode(self, file):
-	 #    	params = {
-	 #            'file' : file
-	 #        }
+	def login(self):
+		ret = self.session.post(self.login_url, data=json.dumps(self.login_info), headers=self.login_headers)
+		return self
 
-	 #        print self.upload_url[product]
-	 
-	 #        ret = self.session.post(self.upload_url[product], data= {'upload_type' : 'APPEND'}, files=params, headers=self.upload_headers)
-	        
-	 #        if (ret.status_code == 400):
-	 #            print json.loads(ret.text).get('message')
-	 #        elif (ret.status_code == 200):
-	 #        	print "Uploading successfully!"
-	 #        else:
-	 #        	print "Unknown Error!"
-	 #        print ret.text
+	def logout(self):
+		self.session.close()
 
-	 #        self.logout()
-	 #        return ret.status_code
+	def upload_in_append_mode(self, file):
+		params = {
+			'file' : file
+		}
+
+		print self.upload_url
+		print self.upload_headers
+
+		ret = self.session.post(self.upload_url, data= {'upload_type' : 'APPEND'}, files=params, headers=self.upload_headers)
+	
+		if (ret.status_code == 400):
+			print json.loads(ret.text).get('message')
+		elif (ret.status_code == 200):
+			print "Uploading successfully!"
+		else:
+			print "Unknown Error!"
+		print ret.text
+		return ret.status_code
 
 	def ensure_path_exists(self, path):
 		if os.path.exists(path):
@@ -141,4 +147,4 @@ class AutoUploader(object):
 
 if __name__ == '__main__':
 
-	AutoUploader().after_crawler_done("oilchem_ma")
+	AutoUploader().process_results("oilchem_ma")

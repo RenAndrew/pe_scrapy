@@ -37,4 +37,7 @@ df = DataFrame()
 df["date"] = data['日期']
 df['price_market'] = data["price_market"]
 
+df =df.set_index('date')
+
+df.drop(['2019-05-15', '2019-05-16', '2019-05-30'], inplace=True, errors='ignore')
 print df.head(20)

@@ -40,21 +40,25 @@ class ExcelBuilder(object):
 		return file
 
 	def remove_before_latest_date(self, csvdata):
-		if self._checkset is None:
+		if self._checkset is not None and self._checkset.get('max_date') is not None:
+			latest_date = self._checkset.get('max_date')
+			csvdata = csvdata[csvdata['日期'] > latest_date]
 			return csvdata
-		latest_date = self._checkset.max_date
-		csvdata = csvdata[csvdata['日期'] > latest_date]
-		return csvdata
+		else:
+			return csvdata
 
-	def remove_dates_exists(self, csvdata):
-		if self._checkset is None:
+	def remove_dates_exists_in_db(self, csvdata):
+		if self._checkset is not None and self._checkset.get('check_list') is not None:
+			check_list = self._checkset.get('check_list')
+			return csvdata.drop(check_list, inplace=True, errors='ignore') #ignore errors when element does not exists
+		else:
 			return csvdata
-		checkset = self._checkset.checkset
 
 
 	def generate_dataframe_from(self, csv_file_with_path, crawler_name):
+		print csv_file_with_path
 		rawdata = pd.read_csv(csv_file_with_path)
-
+		rawdata = self.remove_before_latest_date(rawdata)
 		frame = DataFrame()	#emtpy frame
 
 		frame['日期'] = rawdata['日期']
@@ -64,16 +68,15 @@ class ExcelBuilder(object):
 			for i in range(0, len(columns_needed)):
 				used_column = columns_needed[i]['used_column']
 				column_rename = columns_needed[i]['renamed_as']
-				
 				frame[column_rename] = rawdata[used_column]
-
-			frame = frame.set_index('日期')
 		else:
 			print ('No column needed of %s!' % crawler_name)
 			print ('Could you please check the config? ')
 			print ('-' * 50)
 
-		return frame
+		frame = frame.set_index('日期')
+
+		return self.remove_dates_exists_in_db(frame)
 
 
 	def join_csv_files(self):
@@ -90,29 +93,13 @@ class ExcelBuilder(object):
 				continue
 			print crawler_name
 			# print date_tag
-			columns_needed = self.column_ref_tab.get(crawler_name)
-			if columns_needed is not None and len(columns_needed) > 0:
-				csvdata = pd.read_csv(os.path.join(self.CSV_PATH, csv_file))
-				csvdata = self.remove_before_latest_date(csvdata)
-				data_refered = {
-					'日期' : csvdata['日期'].values
-				}
-				# Add needed column(s) and rename column name
-				for i in range(0, len(columns_needed)):
-					used_column = columns_needed[i]['used_column']
-					column_rename = columns_needed[i]['renamed_as']
-					tmp = csvdata[used_column].values
-					data_refered[column_rename] = tmp
-
-				frame = DataFrame(data_refered).set_index('日期')
-
-				if data_by_date.get(date_tag) is None:	#First data frame, directly add
-					data_by_date[date_tag] = frame
-				else:
-					data_by_date[date_tag] = data_by_date[date_tag].join(frame)	#join two frame at the index field
+			csv_file_with_path = os.path.join(self.CSV_PATH, csv_file)
+			frame = self.generate_dataframe_from(csv_file_with_path, crawler_name)
+			
+			if data_by_date.get(date_tag) is None:	#First data frame, directly add
+				data_by_date[date_tag] = frame
 			else:
-				print ('No column needed of %s!' % crawler_name)
-				print ('-' * 50)
+				data_by_date[date_tag] = data_by_date[date_tag].join(frame)	#join two frame at the index field
 
 		self.df_list_by_date = data_by_date
 
@@ -136,7 +123,6 @@ class ExcelBuilder(object):
 
 			frame_of_lacking_columns = DataFrame(empty_content_columns).set_index('日期')
 			# print frame_of_lacking_columns.ix[:10]
-
 			self.df_list_by_date[date_tag] = self.df_list_by_date[date_tag].join(frame_of_lacking_columns)
 
 		return self
@@ -184,6 +170,9 @@ class ExcelBuilder(object):
 		return True
 
 	def _file_name_parser(self, file_name):
+		suffix = file_name.split('.')[1]
+		if suffix != "csv":
+			raise Exception("%s is not csv file!" % file_name)
 		p1 = file_name.rfind('_')
 		crawler_name = file_name[:p1]
 		date_tag = file_name[p1+1:].split('.')[0]
@@ -217,7 +206,7 @@ class ExcelBuilder(object):
 if __name__ == '__main__':
 	# csv_combiner = ExcelBuilder(csv_path='../work/MA_test')
 	#csv_combiner = ExcelBuilder(xls_outdir='../work/temp')
-	csv_combiner = ExcelBuilder(csv_path='../work/MA_test/debug', xls_outdir='../work/temp4')
+	csv_combiner = ExcelBuilder(csv_path='./pe/work/csv/oilchem_ma/2019-05-17', xls_outdir='./pe/work/')
 	csv_combiner.join_csv_files()
 	print '-' * 80
 	csv_combiner.attach_lacking_columns()
