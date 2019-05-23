@@ -9,6 +9,7 @@ from upload_config import UploaderConfig
 from xls_builder import ExcelBuilder
 from files_collector import FilesCollector
 from db_checkset import DbChecksetMaker
+from mylogin import MyLogin
 
 from boxing import BoxingConfig,DatabaseConfig
 
@@ -86,14 +87,17 @@ class AutoUploader(object):
 
 
 	def read_configs(self):
-		main_url = UploaderConfig().get_upload_config("upload_basic").get("main_url")
-		db_config = DatabaseConfig()
+		upload_basic = UploaderConfig().get_upload_config("upload_basic")
+		main_url = upload_basic.get('main_url')
+		main_url = main_url.encode('ascii')
+
+		user = upload_basic.get('username').encode('ascii')
+		password = upload_basic.get('password').encode('ascii')
+
 		upload_config = UploaderConfig().get_upload_config(self.crawler_name)
 
-		user = db_config.db_username
-		password = db_config.db_password
-
-		self.login_url = 'http://' + main_url + '/api/v1/sso/login'
+		# self.login_url = 'http://' + main_url + '/api/v1/sso/login'
+		self.login_url = 'http://' + main_url + '/login'
 		self.login_info = {
 			'username' : user,
 			'password': password
@@ -108,10 +112,6 @@ class AutoUploader(object):
 
 		self.upload_headers = {
 			'host' : main_url.replace('http://',''),
-			# 'Host': 'localhost:9875',
-			# 'Origin': 'http://localhost:9875',
-			# 'Referer': 'http://localhost:9875/data/',
-			'Cookie': 'phaseInterval=120000; previewCols=url%20status%20size%20timeline; stats=true; session=.eJwdjkFrwyAYhv_K8NyD2lrSwA4dWUMG3ycZuqCXsjm7ROMlXWlq6X9f2OGFBx54eO_keJr8uSfl73TxK3Icvkl5J09fpCSo9hTye5J1Kxbe2KBnyOMg1f4G9ce4LNqkKXQYoWu44fpquB2xigLySwKlKeZ4Q97MGGAGBUuvoUb9UKz6AKmhtjr0qDCYpLnscJQdMLt4W7cZwtJIbxE5MFlhlLXZYGivyF-ZVH20KnLIh0HW-pk8VuRy9tP_fyKEc8Va-NPWUcZ8UTi2K1whdvRzTf3Wkccf6DpOVQ.XN97jA.EMPsud7mffr1xPQTogHpEvDe1VU',
 			'User-Agent' : 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'
 		}
 
@@ -120,33 +120,41 @@ class AutoUploader(object):
 
 	def login(self):
 		print 'Login to ' + self.login_url
-		ret = self.session.post(self.login_url, data=json.dumps(self.login_info), headers=self.login_headers)
-		# print ret.cookie
-		print self.session.headers
+		print self.login_info
+		cookie_str = MyLogin.login(self.login_url, self.login_info['username'], self.login_info['password'])
+		self.upload_headers['Cookie'] = cookie_str
 		return self
 
 	def logout(self):
 		self.session.close()
 
-	def upload_in_append_mode(self, file):
+	def upload_in_append_mode(self, file_name):
+		file = open(file_name)
 		params = {
 			'file' : file
 		}
 
 		print 'Upload to url: '
 		print self.upload_url
-		print self.upload_headers
+		# print self.upload_headers
+		print 'File name is: ' + file_name
 
-		ret = self.session.post(self.upload_url, data= {'upload_type' : 'APPEND'}, files=params, headers=self.upload_headers)
+		ret = requests.post(self.upload_url, data= {'upload_type' : 'APPEND'}, files=params, headers=self.upload_headers)
 	
+		flag = False
 		if (ret.status_code == 400):
 			print json.loads(ret.text).get('message')
+		elif (ret.status_code == 401):
+			print 'Unauthorized, please check login!'
 		elif (ret.status_code == 200):
 			print "Uploading successfully!"
+			flag = True
 		else:
 			print "Unknown Error!"
-		print ret.text
-		return ret.status_code
+			print ret.text
+
+		file.close()
+		return flag
 
 	def ensure_path_exists(self, path):
 		if os.path.exists(path):
@@ -157,4 +165,7 @@ class AutoUploader(object):
 
 if __name__ == '__main__':
 
-	AutoUploader("oilchem_ma").process_results("oilchem_ma")
+	# AutoUploader("oilchem_ma").process_results("oilchem_ma")
+	uploader = AutoUploader("oilchem_ma")
+	uploader.excel_file = "pe/work/upload_work_dir/oilchem_ma_2019-05-22.xlsx"
+	uploader.upload_excel()

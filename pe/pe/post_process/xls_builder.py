@@ -9,6 +9,7 @@ from openpyxl import Workbook
 from boxing.spider import SpiderConfig
 
 from db_checkset import DbChecksetMaker
+from ..util import TimeKit
 
 #Build the excel upload file from csv files which are crawlered by oilchem spider
 class ExcelBuilder(object):
@@ -25,17 +26,18 @@ class ExcelBuilder(object):
 			os.makedirs(self.XLS_OUTDIR)
 
 		self._checkset = None
+		self._max_date = None
 
 	def check_before(self, checkset):
 		self._checkset = checkset
 		return self
 
 	def build(self):
-		file = self.join_csv_files()\
+		xlxs_file = self.join_csv_files()\
 				   .attach_lacking_columns()\
 				   .store_as_xlsx()
 
-		return file
+		return xlxs_file
 
 	def remove_before_latest_date(self, csvdata):
 		if self._checkset is not None and self._checkset.get('max_date') is not None:
@@ -49,10 +51,10 @@ class ExcelBuilder(object):
 		if self._checkset is not None and self._checkset.get('check_list') is not None:
 			check_list = self._checkset.get('check_list')
 			csvdata.drop(check_list, inplace=True, errors='ignore')	#ignore errors when element does not exists
+			# print csvdata.head()
 			return csvdata 
 		else:
 			return csvdata
-
 
 	def generate_dataframe_from(self, csv_file_with_path, crawler_name):
 		print csv_file_with_path
@@ -76,9 +78,27 @@ class ExcelBuilder(object):
 		frame = frame.set_index('日期')
 		return self.remove_dates_exists_in_db(frame)
 
+	def _get_max_date(self, path):
+		max_date = None
+		for csv_file in os.listdir(path):
+			if not os.path.isfile(os.path.join(path, csv_file)):
+				continue
+			try:
+				crawler_name, date_tag = self._file_name_parser(csv_file)
+			except:
+				print traceback.format_exc()
+				continue
+			if max_date is None:
+				max_date = date_tag
+			else:
+				max_date = TimeKit.max_date([date_tag, max_date])
+		return max_date
+
 	def join_csv_files(self):
-		data_by_date = {}	#collect each date of data
+		data_by_date = {}	#collect only max date of data
 		
+		max_date = self._get_max_date(self.CSV_PATH)
+		print 'max_date : %s' % max_date
 		print ('Included files: ')
 		for csv_file in os.listdir(self.CSV_PATH):
 			if not os.path.isfile(os.path.join(self.CSV_PATH, csv_file)):
@@ -88,8 +108,10 @@ class ExcelBuilder(object):
 			except:
 				print traceback.format_exc()
 				continue
-			print crawler_name
-
+			# print crawler_name
+			if date_tag != max_date:		#only max_date is allowed
+				continue
+			
 			csv_file_with_path = os.path.join(self.CSV_PATH, csv_file)
 			frame = self.generate_dataframe_from(csv_file_with_path, crawler_name)
 			if data_by_date.get(date_tag) is None:	#First data frame, directly add
@@ -144,9 +166,11 @@ class ExcelBuilder(object):
 
 		filename_templ = os.path.join(self.XLS_OUTDIR, self.config_name)
 
+		xlxs_file = None
 		for date_tag, df in self.df_list_by_date.items():
 			filename_with_date = (filename_templ+ '_' + date_tag + '.xlsx')
 			print "Output to %s" % filename_with_date
+			xlxs_file = filename_with_date
 			workbook = Workbook()
 			sheet1 = workbook.active
 			sheet1.title = self.config_name
@@ -162,7 +186,7 @@ class ExcelBuilder(object):
 			workbook.save(filename = filename_with_date)
 			workbook.close()
 
-		return True
+		return xlxs_file
 
 	def _file_name_parser(self, file_name):
 		suffix = file_name.split('.')[1]
@@ -202,9 +226,10 @@ if __name__ == '__main__':
 	#csv_combiner = ExcelBuilder(xls_outdir='../work/temp')
 	csv_combiner = ExcelBuilder(csv_path='/shared/boxing/user_spiders/work/csv/oilchem_ma/2019-05-22/',\
 			 xls_outdir='./pe/work/upload_work_dir/')
-	csv_combiner._checkset = {
-		'check_list': ['2019-05-22','2019-05-21', '2019-05-20', '2019-05-19']
-	}
+	# csv_combiner._checkset = {
+	# 	'check_list': ['2019-05-22','2019-05-21', '2019-05-20', '2019-05-19']
+	# }
+	csv_combiner.check_before(DbChecksetMaker().make_checkset("ma_cn_cargo_price_daily"))
 	csv_combiner.join_csv_files()
 	print '-' * 80
 	csv_combiner.attach_lacking_columns()
