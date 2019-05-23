@@ -294,12 +294,12 @@
                 "name": "oc_inter"
             }
         ],
-        "global_time_override" : false,
+        "global_time_override" : true,
         "global_start_time" : "lastyear",
         "global_end_time" : "today",
 
         "debug_sub_crawlers" : {
-            "switch" : "on",
+            "switch" : "off",
             "debug_sub_crawler_list" : [
                         "FOB美湾usd"
                     ]

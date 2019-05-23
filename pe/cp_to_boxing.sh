@@ -15,10 +15,13 @@ fi
 if [ ! -d "$BOXING_USER_SPIDER_PATH/util" ]; then
 	mkdir -p $BOXING_USER_SPIDER_PATH/util
 fi
+if [ ! -d "$BOXING_USER_SPIDER_PATH/post_process" ]; then
+	mkdir -p $BOXING_USER_SPIDER_PATH/post_process
+fi
 
 #copy util
 cp $SCRAPY_SRC_HOME_PATH/pe/util/*.py $BOXING_USER_SPIDER_PATH/util/
-#cp $SCRAPY_SRC_HOME_PATH/pe/spiders_import.py $BOXING_USER_SPIDER_PATH/__init__.py #deprecated
+cp $SCRAPY_SRC_HOME_PATH/pe/post_process/*.py $BOXING_USER_SPIDER_PATH/post_process/
 
 cp $SCRAPY_SRC_HOME_PATH/pe/spiders/*.py $BOXING_USER_SPIDER_PATH/spiders/
 # cp $SCRAPY_SRC_HOME_PATH/pe/spiders/__init__.py $BOXING_USER_SPIDER_PATH/spiders/

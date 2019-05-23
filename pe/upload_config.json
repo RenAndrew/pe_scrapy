@@ -1,5 +1,6 @@
 {
 	"upload_basic" : {
+		"main_url" : "localhost:9875",
 		"csv_download_path" : "/shared/boxing/result",
 		"csv_aggregate_path" : "/shared/boxing/user_spiders/work/csv",
 		"xls_output" : "/shared/boxing/user_spiders/work/xls",

@@ -31,9 +31,7 @@ class DbChecksetMaker(object):
 		# conn_str = "mysql+pymysql://{}:{}@{}:{}/{}"\
 		# 				.format(self._user, self._passwd, self._ip, self._port,self._db)
 		mysql_engine = create_engine(self._conn_str_data)
-
 		MysqlSession = sessionmaker(bind=mysql_engine)
-
 		db_session = MysqlSession()
 
 		date_checkset = {
@@ -47,15 +45,15 @@ class DbChecksetMaker(object):
 
 			date_list = []
 			for row in result_set:
-				date_list.append(str(row[0]))	#datetime to string type
-
+				date_list.append(str(row[0]))			#datetime to string type
 			date_checkset['check_list'] = date_list
+
 		elif check_type == 'max_date':
 			query_sql = "select max(dt) from {};".format(table_name)
 			result_set = db_session.execute(query_sql).fetchall()
 
 			for row in result_set:
-				date_checkset['max_date'] = str(row[0])	#datetime to string type
+				date_checkset['max_date'] = str(row[0])		#datetime to string type
 
 		print date_checkset
 

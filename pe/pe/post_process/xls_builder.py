@@ -12,8 +12,6 @@ from db_checkset import DbChecksetMaker
 
 #Build the excel upload file from csv files which are crawlered by oilchem spider
 class ExcelBuilder(object):
-	CSV_PATH='../work'
-	# CSV_PATH='../work/MA_test'
 
 	def __init__(self, config_name='oilchem_ma', csv_path='../work', xls_outdir='../work/out'):
 		config = SpiderConfig().get_config(config_name)
@@ -50,7 +48,8 @@ class ExcelBuilder(object):
 	def remove_dates_exists_in_db(self, csvdata):
 		if self._checkset is not None and self._checkset.get('check_list') is not None:
 			check_list = self._checkset.get('check_list')
-			return csvdata.drop(check_list, inplace=True, errors='ignore') #ignore errors when element does not exists
+			csvdata.drop(check_list, inplace=True, errors='ignore')	#ignore errors when element does not exists
+			return csvdata 
 		else:
 			return csvdata
 
@@ -75,9 +74,7 @@ class ExcelBuilder(object):
 			print ('-' * 50)
 
 		frame = frame.set_index('日期')
-
 		return self.remove_dates_exists_in_db(frame)
-
 
 	def join_csv_files(self):
 		data_by_date = {}	#collect each date of data
@@ -92,10 +89,9 @@ class ExcelBuilder(object):
 				print traceback.format_exc()
 				continue
 			print crawler_name
-			# print date_tag
+
 			csv_file_with_path = os.path.join(self.CSV_PATH, csv_file)
 			frame = self.generate_dataframe_from(csv_file_with_path, crawler_name)
-			
 			if data_by_date.get(date_tag) is None:	#First data frame, directly add
 				data_by_date[date_tag] = frame
 			else:
@@ -122,7 +118,6 @@ class ExcelBuilder(object):
 				empty_content_columns[column] = ['' for i in range(0, len(df.index))]
 
 			frame_of_lacking_columns = DataFrame(empty_content_columns).set_index('日期')
-			# print frame_of_lacking_columns.ix[:10]
 			self.df_list_by_date[date_tag] = self.df_list_by_date[date_tag].join(frame_of_lacking_columns)
 
 		return self
@@ -202,11 +197,14 @@ class ExcelBuilder(object):
 			self.column_ref_tab[sub_crawler['crawler_name'].encode('utf-8')] = columns_needed
 
 
-
 if __name__ == '__main__':
 	# csv_combiner = ExcelBuilder(csv_path='../work/MA_test')
 	#csv_combiner = ExcelBuilder(xls_outdir='../work/temp')
-	csv_combiner = ExcelBuilder(csv_path='./pe/work/csv/oilchem_ma/2019-05-17', xls_outdir='./pe/work/')
+	csv_combiner = ExcelBuilder(csv_path='/shared/boxing/user_spiders/work/csv/oilchem_ma/2019-05-22/',\
+			 xls_outdir='./pe/work/upload_work_dir/')
+	csv_combiner._checkset = {
+		'check_list': ['2019-05-22','2019-05-21', '2019-05-20', '2019-05-19']
+	}
 	csv_combiner.join_csv_files()
 	print '-' * 80
 	csv_combiner.attach_lacking_columns()

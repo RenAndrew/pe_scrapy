@@ -21,12 +21,14 @@ class OilchemSpiderUser(SpiderBase):
     CONFIG_NAME = "oilchem_pvc"
 
     def get_allowed_set(self, debug_sub_crawlers):
+        self._is_debug_mode = False
         allowed_crawler_set = set()
         if debug_sub_crawlers is not None:
             debug_mode = debug_sub_crawlers.get("switch")
             if debug_mode == "on":
                 allowed_crawler_set = set(debug_sub_crawlers["debug_sub_crawler_list"])
                 print "In debuging..."
+                self._is_debug_mode = True
         return allowed_crawler_set
 
     def parse(self, response):
@@ -40,6 +42,7 @@ class OilchemSpiderUser(SpiderBase):
         
         for sub_crawler_info in config['sub_crawlers']:
             sub_spider_name = sub_crawler_info['crawler_name']
+            # if self._is_debug_mode and sub_spider_name not in allowed_crawler_set:
             if sub_spider_name not in allowed_crawler_set:
                 continue
 
@@ -105,7 +108,7 @@ class OilchemSpiderUser(SpiderBase):
         yield self._generate_compelete_flag()
 
     def _generate_compelete_flag(self):
-        time.sleep(5)   #making sure all the records are fully written to files.
+        time.sleep(1)   #making sure all the records are fully written to files.
         #generating fake record
         from datetime import datetime,date
         ts = datetime.now().strftime('%Y-%m-%d_%H%M%S')
@@ -128,4 +131,4 @@ class OilchemSpiderUser(SpiderBase):
 
         AutoUploader(crawler_name).wait_until_dumping_finished(self.compelete_flag)\
                                   .process_results(crawler_name)\
-        #               .upload_excel()
+                                  .upload_excel()
