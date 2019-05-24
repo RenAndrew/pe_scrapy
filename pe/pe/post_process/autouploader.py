@@ -134,8 +134,8 @@ class AutoUploader(object):
 			'file' : file
 		}
 
-		print 'Upload to url: '
-		print self.upload_url
+		print 'Upload to url: ' + self.upload_url
+		print 
 		# print self.upload_headers
 		print 'File name is: ' + file_name
 
@@ -146,6 +146,7 @@ class AutoUploader(object):
 			print json.loads(ret.text).get('message')
 		elif (ret.status_code == 401):
 			print 'Unauthorized, please check login!'
+			print ret.text
 		elif (ret.status_code == 200):
 			print "Uploading successfully!"
 			flag = True
@@ -167,5 +168,5 @@ if __name__ == '__main__':
 
 	# AutoUploader("oilchem_ma").process_results("oilchem_ma")
 	uploader = AutoUploader("oilchem_ma")
-	uploader.excel_file = "pe/work/upload_work_dir/oilchem_ma_2019-05-22.xlsx"
+	uploader.excel_file = "/shared/boxing/user_spiders/work/xls/oilchem_ma_2019-05-24.xlsx"
 	uploader.upload_excel()

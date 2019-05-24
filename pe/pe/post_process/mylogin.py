@@ -13,7 +13,7 @@ class MyLogin:
 	def login(login_url, username, password):
 		if os.path.exists(os.path.join(os.getcwd(), 'DEV_FLAG')):	#runs in dev mode.
 			options = Options()
-			#options.add_argument('--headless')
+			# options.add_argument('--headless')
 			options.add_argument('--no-sandbox')
 			browser = webdriver.Chrome(chrome_options=options)
 			# browser = webdriver.Firefox()

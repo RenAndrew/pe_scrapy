@@ -4,6 +4,7 @@ import pandas as pd
 from pandas import Series, DataFrame
 import os
 import traceback
+import chardet
 from openpyxl import Workbook
 
 from boxing.spider import SpiderConfig
@@ -27,9 +28,19 @@ class ExcelBuilder(object):
 
 		self._checkset = None
 		self._max_date = None
+		# self._date_set = set()
 
 	def check_before(self, checkset):
 		self._checkset = checkset
+		if self._checkset is not None:
+			if self._checkset.get('max_date') is not None:
+				print 'Check duplicated data by: max_date.'
+			elif self._checkset.get('check_list') is not None:
+				print 'Check duplicated data by: check_list.'
+			else:
+				print 'Checkset is incorrect! It will dumpout all data!'
+		else:
+			print 'Checkset is incorrect! It will dumpout all data!'
 		return self
 
 	def build(self):
@@ -63,7 +74,9 @@ class ExcelBuilder(object):
 		frame = DataFrame()	#emtpy frame
 
 		frame['日期'] = rawdata['日期']
-		columns_needed = self.column_ref_tab.get(crawler_name)
+		
+		columns_needed = self.column_ref_tab.get(crawler_name.encode('utf-8'))
+		
 		if columns_needed is not None and len(columns_needed) > 0:
 			# Add needed column(s) and rename column name
 			for i in range(0, len(columns_needed)):
@@ -109,7 +122,7 @@ class ExcelBuilder(object):
 				print traceback.format_exc()
 				continue
 			# print crawler_name
-			if date_tag != max_date:		#only max_date is allowed
+			if date_tag != max_date:		#only max_date will be processed
 				continue
 			
 			csv_file_with_path = os.path.join(self.CSV_PATH, csv_file)
@@ -170,6 +183,9 @@ class ExcelBuilder(object):
 		for date_tag, df in self.df_list_by_date.items():
 			filename_with_date = (filename_templ+ '_' + date_tag + '.xlsx')
 			print "Output to %s" % filename_with_date
+			print 'To be imported dates:'
+			print 'Total: %d rows' % len(df.index.values)
+			print df.index.values
 			xlxs_file = filename_with_date
 			workbook = Workbook()
 			sheet1 = workbook.active
@@ -202,6 +218,7 @@ class ExcelBuilder(object):
 		self.column_ref_tab = {}
 		for sub_crawler in sub_crawlers:
 			used_data_columns = sub_crawler.get('used_data_columns')
+			print used_data_columns
 			columns_needed = []
 			is_first_nameless = True
 			for src_column in used_data_columns:
@@ -217,6 +234,7 @@ class ExcelBuilder(object):
 
 					columns_needed.append({"used_column" : src_column.encode('utf-8'),\
 										   "renamed_as" : renamed_as})
+				print columns_needed
 
 			self.column_ref_tab[sub_crawler['crawler_name'].encode('utf-8')] = columns_needed
 

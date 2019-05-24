@@ -42,8 +42,8 @@ class OilchemSpiderUser(SpiderBase):
         
         for sub_crawler_info in config['sub_crawlers']:
             sub_spider_name = sub_crawler_info['crawler_name']
-            # if self._is_debug_mode and sub_spider_name not in allowed_crawler_set:
-            if sub_spider_name not in allowed_crawler_set:
+            if self._is_debug_mode and sub_spider_name not in allowed_crawler_set:
+            # if sub_spider_name not in allowed_crawler_set:
                 continue
 
             header_type = sub_crawler_info.get('header_type', 'oc_user')
@@ -72,8 +72,8 @@ class OilchemSpiderUser(SpiderBase):
             #     target_table = update_info['target_table'].encode('utf-8')
             #     target_column = update_info['target_column'].encode('utf-8')
             #     target_table, target_column = get_boxing_table_name_column_name(target_table, target_column)
-
-            records = []
+# 
+            # records = []
             data_type = sub_crawler_info.get('data_type', 'domestic')
             try:
                 records = crawler.download_data(req_url, logined_cookie, dtype=data_type)

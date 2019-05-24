@@ -55,7 +55,7 @@ class DbChecksetMaker(object):
 			for row in result_set:
 				date_checkset['max_date'] = str(row[0])		#datetime to string type
 
-		print date_checkset
+		# print date_checkset
 
 		db_session.close()
 
