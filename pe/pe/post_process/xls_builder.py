@@ -4,7 +4,6 @@ import pandas as pd
 from pandas import Series, DataFrame
 import os
 import traceback
-import chardet
 from openpyxl import Workbook
 
 from boxing.spider import SpiderConfig
@@ -218,7 +217,6 @@ class ExcelBuilder(object):
 		self.column_ref_tab = {}
 		for sub_crawler in sub_crawlers:
 			used_data_columns = sub_crawler.get('used_data_columns')
-			print used_data_columns
 			columns_needed = []
 			is_first_nameless = True
 			for src_column in used_data_columns:
@@ -234,7 +232,6 @@ class ExcelBuilder(object):
 
 					columns_needed.append({"used_column" : src_column.encode('utf-8'),\
 										   "renamed_as" : renamed_as})
-				print columns_needed
 
 			self.column_ref_tab[sub_crawler['crawler_name'].encode('utf-8')] = columns_needed
 
@@ -242,8 +239,8 @@ class ExcelBuilder(object):
 if __name__ == '__main__':
 	# csv_combiner = ExcelBuilder(csv_path='../work/MA_test')
 	#csv_combiner = ExcelBuilder(xls_outdir='../work/temp')
-	csv_combiner = ExcelBuilder(csv_path='/shared/boxing/user_spiders/work/csv/oilchem_ma/2019-05-22/',\
-			 xls_outdir='./pe/work/upload_work_dir/')
+	csv_combiner = ExcelBuilder(csv_path='/shared/boxing/user_spiders/work/csv/oilchem_ma/2019-05-24/',\
+			 xls_outdir='/shared/boxing/user_spiders/work/xls/')
 	# csv_combiner._checkset = {
 	# 	'check_list': ['2019-05-22','2019-05-21', '2019-05-20', '2019-05-19']
 	# }

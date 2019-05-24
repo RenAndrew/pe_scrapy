@@ -18,7 +18,11 @@ class MyLogin:
 			browser = webdriver.Chrome(chrome_options=options)
 			# browser = webdriver.Firefox()
 		else:
-			browser = webdriver.PhantomJS()
+			# browser = webdriver.PhantomJS()		#phantomjs mode failed login, and headless mode
+			options = Options()
+			# options.add_argument('--headless')
+			options.add_argument('--no-sandbox')
+			browser = webdriver.Chrome(chrome_options=options)
 
 		browser.implicitly_wait(5)  # wait until the page is fully loaded.
 
