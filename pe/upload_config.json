@@ -1,0 +1,17 @@
+{
+	"upload_basic" : {
+		"main_url" : "localhost:9875",
+		"username" : "root",
+		"password" : "11111111",
+		"csv_download_path" : "/shared/boxing/result",
+		"csv_aggregate_path" : "/shared/boxing/user_spiders/work/csv",
+		"xls_output" : "/shared/boxing/user_spiders/work/xls",
+
+		"working_dir" : "/shared/boxing/user_spiders/work/upload_work_dir"
+	},
+	"oilchem_ma" : {
+		"upload_api_uri" : "/api/v1/data/tables/upload/ma_cn_cargo_price_daily",
+		"upload_api_url" : "http://localhost:9875/api/v1/data/tables/upload/ma_cn_cargo_price_daily",
+		"target_table" : "ma_cn_cargo_price_daily"
+	}
+}

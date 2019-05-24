@@ -1,2 +1,10 @@
 *.csv
 *.pyc
+*.log
+*.dat
+*.xls
+*.xlsx
+*.zip
+*.sublime-workspace
+*.cfg
+*.jpg

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
-import time, os
+import time, os,sys
+import random
 import re
 
 import urllib
@@ -13,25 +14,19 @@ import demjson
 from scrapy import Spider, Request
 from scrapy_splash import SplashRequest
 
-from .. import SpiderBase
-from pe.items import DiMoPrice, PeSumoPrice
-from ..chem99_login import SeleniumLogin
-from .. import webrender
+from boxing.spider import SpiderBase,SpiderConfig
+from ..util import Chem99SeleniumLogin
+sys.path.append('/shared/boxing/user_spiders')		#useless in pe_scrapy but for boxing.user_spiders project
+from user_items import Chem99PeSumoPrice
 
 '''
-这个爬虫是所有卓越网(http://plas.chem99.com)爬虫的父类
-提供基础的登陆功能，继承的爬虫只需要覆盖name和start_urls，以及：
-重写parseAfterlogin方法，在这个方法中提取相关的数据生成Item
-
-本类中，生成带headers和cookies的新request，
-并重新爬取以获得登陆后的完整网页
+这个爬虫是所有卓创网(http://plas.chem99.com)爬虫的父类
+其他类继承这个类可以获得自动登录和动态页面渲染的功能
+（动态页面渲染由splash服务器提供，请确保爬取前开启）
+覆盖__init__方法之前的静态变量可更改配置
 '''
 class SplashSpiderBase(SpiderBase):
 	name = 'splashbase'
-
-    # allowed_domains = ['http://plas.chem99.com/news/30375838.html']
-    # 这个start_url是塑料膜类别的索引页面地址，其他类别请覆盖这个地址
-	# start_urls = ['http://www.sci99.com/search/?key=%E5%A1%91%E8%86%9C%E6%94%B6%E7%9B%98%E4%BB%B7&siteid=0']
 
 	#Account info
 	config = {
@@ -39,8 +34,11 @@ class SplashSpiderBase(SpiderBase):
 		'password' : '123Qweasd'
 	}
 
+	#Login type, override it to adapt to non-plas pages login
+	LOGIN_TYPE = 'PLAS_LOGIN' #OR 'CHEM_LOGIN'
+
 	#spider settings, not in settings.py
-	SCRAPY_SETTINGS = {
+	settings = {
 		'SPLASH_URL' : 'http://localhost:8050',
 
 		'DOWNLOADER_MIDDLEWARES' : {
@@ -76,6 +74,7 @@ class SplashSpiderBase(SpiderBase):
 			     ["User-Agent"] = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.23 Mobile Safari/537.36",
 			 })
          	 splash:init_cookies(args.cookies)
+         	 splash.images_enabled = false -- disable images
              assert(splash:go(args.url))
              assert(splash:wait(args.wait))
              --return splash:get_cookies()
@@ -94,19 +93,43 @@ class SplashSpiderBase(SpiderBase):
 			u'VMCPP' : 'VMCPP',
 		}
 
+	# WORK_PATH = '/shared/boxing/user_spiders/work/chem99/'
+	WORK_PATH = './pe/work/chem99/'
+
+	DEBUG_URL = None	#debug url is for crawl one page and test it
+
+	def _read_config(self):
+		if os.path.exists(os.path.join(os.getcwd(), 'DEV_FLAG')):
+			print 'Current spider runs in dev mode.'
+			print os.getcwd()
+		else:
+			self.crawl_config = SpiderConfig().get_config('chem99')
+			self.config['username'] = self.crawl_config['username']
+			self.config['password'] = self.crawl_config['password']
+			self.WORK_PATH = self.crawl_config['work_path']
+
+		if not os.path.exists(self.WORK_PATH):
+			os.makedirs(self.WORK_PATH)
+
+		print 'Work path is: ' + self.WORK_PATH
+
 	def __init__(self):
-		autologin_tool = SeleniumLogin(os.getcwd() + '/')
+		self._read_config()
+		autologin_tool = Chem99SeleniumLogin(self.WORK_PATH, self.LOGIN_TYPE)
 		autologin_tool.set_account(self.config['username'], self.config['password'])
-		cookies = autologin_tool.selelogin('http://plas.chem99.com/news/30375838.html')
+		cookies = autologin_tool.selelogin()
 
 		# logined_cookies : 已登录的cookie
-		self.logined_cookies = self._cookie_format_to_splash(cookies)
+		self.logined_cookies = self._cookie_format_to_splash(cookies)	#splash needs cookies in array format
 		self.logined_cookies_str = cookies
 		# print self.logined_cookies_str
 		# print self.logined_cookies
 
 	def start_requests(self):
 		link_producer = LinkProducer(self.logined_cookies_str, self.SEARCH_API_META)
+		if self.DEBUG_URL:
+			link_producer.set_debug_url(self.DEBUG_URL)
+
 		self.visited_news = link_producer.get_visited()		#get the detailed info of the news
 		link_source = link_producer.link_factory()
 
@@ -117,7 +140,7 @@ class SplashSpiderBase(SpiderBase):
 		except StopIteration as e:
 			pass
 
-		link_producer.store_visited(self.name + '_visited.dat')
+		link_producer.store_visited(os.path.join(self.WORK_PATH, self.name + '_visited.dat'))
 
 	# splash是一个动态页面渲染引擎，scrapy可以向本地splash申请渲染一个url并返回渲染后的页面
 	def produce_request(self, url, callback_method=None):
@@ -130,7 +153,7 @@ class SplashSpiderBase(SpiderBase):
 
 		try:
 			for i in range(2,9):
-				item = PeSumoPrice()
+				item = Chem99PeSumoPrice()
 				selector_templ = '#PanelContent tbody tr:nth-child({0}) td:nth-child({1})'
 				
 				item['product_name'] = self._strip_html_tags( response.css(selector_templ.format(i, 1)).extract_first() ).encode('utf-8')
@@ -141,6 +164,7 @@ class SplashSpiderBase(SpiderBase):
 				item['increase_to_last_month'] = self._strip_html_tags( response.css(selector_templ.format(i,6)).extract_first() )
 				item['increase_to_last_year'] = self._strip_html_tags( response.css(selector_templ.format(i,7)).extract_first() )
 
+				item['unit'] = u'元/吨'
 				item['name'] = self.name
 				item['filename'] = self._filename_according_to(item['product_name'].decode('utf-8'))
 
@@ -161,7 +185,6 @@ class SplashSpiderBase(SpiderBase):
 		splash_cookie = []
 
 		cookie_list = cookie_str.split(';')
-		# print cookieList
 
 		for cookie in cookie_list:
 			if cookie.find('=') == -1:
@@ -197,6 +220,13 @@ class SplashSpiderBase(SpiderBase):
 		text_without_tag = ''.join(content_pattern.findall(content_with_html))
 		return text_without_tag.strip()
 
+	def clean_tags(self, content_with_html):
+		content_with_html = '>' + content_with_html.replace('\n', '') + '<' #delete \n to make regexp work
+		content_pattern = re.compile('>(.*?)<')
+		# print content_pattern.findall(content_with_html)
+		text_without_tag = ''.join(content_pattern.findall(content_with_html))
+		return text_without_tag.strip()
+
 	def _filename_according_to(self, product_name):
 		file_name = self.fields_zn2en_mapping_dict.get(product_name)
 		if file_name is None:
@@ -204,13 +234,24 @@ class SplashSpiderBase(SpiderBase):
 		else:
 			return file_name
 
+	def get_date_from_meta_info(self, url):
+		news_info = self.visited_news.get( self._get_id_from_url(url) )
+		if news_info:
+			return news_info['pubDate']
+		else:
+			return None
+
 class LinkProducer(object):
 
 	base_url = 'http://plas.chem99.com/news/'
 	search_api_url = 'http://www.sci99.com/search/ajax.aspx'
 
 	DEBUG_MODE = False
-	DEBUG_URL = 'http://plas.chem99.com/news/29796650.html'
+	DEBUG_URL = 'http://plas.chem99.com/news/30420259.html'
+
+	def set_debug_url(self, debug_url):
+		self.DEBUG_URL = debug_url
+		self.DEBUG_MODE = True
 
 	def __init__(self, cookie, meta):
 		self.headers = {
@@ -249,6 +290,7 @@ class LinkProducer(object):
 
 	def link_factory(self):
 		if self.DEBUG_MODE:
+			print 'Yielding ' + self.DEBUG_URL
 			yield self.DEBUG_URL
 			return
 
@@ -258,15 +300,13 @@ class LinkProducer(object):
 
 			for news_id in self.news_dict:
 				news_info = self.news_dict[news_id]
-				# print 'Yielding =======> ' + newsInfo['url']
-				if self._filter_by_field(news_info):
-					break
+				# print 'Yielding =======> ' + news_info['url']
 				
 				self.record_visited(news_id, news_info)
 				yield news_info['url']
 
-			# self.next_news_page()
-			break		#for test ignore the next page
+			self.next_news_page()
+			# break		#for test ignore the next page
 
 	def next_news_page(self):
 		self.page_index += 1
@@ -292,6 +332,9 @@ class LinkProducer(object):
 		print 'Page: ' + str(self.page_index)
 
 		for news_item in hits_list:
+			if self._filter_by_field(news_item):
+				continue
+
 			news_id = news_item['NewsKey'].encode('ascii')
 			url = news_item['URL'].encode('ascii') + 'news/' + news_id + ".html"
 			title = news_item['Title'].encode('utf-8')
@@ -302,7 +345,7 @@ class LinkProducer(object):
 			sccid = news_item['SCCID'].encode('ascii')
 			class_name = news_item['ClassName'].encode('utf-8')
 
-			print ('ID: %d: %s | %s | %s' % (int(news_id), url, title, pub_date))
+			print ('%d: %s | %s | %s' % (int(news_id), news_item['WebSite'].encode('utf-8'), title, pub_date))
 
 			news_info = {
 				"url" : url,
@@ -328,20 +371,26 @@ class LinkProducer(object):
 		with open(file_name, 'w+') as f:
 			f.write(visited_news_json)
 
+	# for more than two filters, any filter is true will filter the url
 	def _filter_by_field(self, news_info):
-
 		if not self.filter:
 			return False
 
-		field_name = self.filter["field"]
-		field_value = news_info.get(field_name)
-		
-		if field_value is None:
-			print ('Field value is empty!')
-			return False
+		if not isinstance(self.filter, list):
+			self.filter = [self.filter]
 
-		try:
-			is_been_filtered = self.filter["method"](field_value)
-			return is_been_filtered
-		except:
-			return False
+		for filter_item in self.filter:
+			field_name = filter_item['field']
+			field_value = news_info.get(field_name)
+			if field_value is None:
+				print ('Field value is empty!')
+				return False
+			try:
+				if filter_item['method'](field_value):
+					return True
+			except Exception as e:
+				print 'Error in _filter_by_field!'
+				print e
+				continue		#do next filter
+
+		return False

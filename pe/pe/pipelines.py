@@ -51,7 +51,7 @@ class CsvDumpPipeline(object):
 
     def open_spider(self, spider):
         # self.result_folder = os.path.join(spider.settings['result_folder'], spider.name)
-        self.result_folder = os.path.join('./', spider.name)
+        self.result_folder = os.path.join('./result/', spider.name)
         if not os.path.exists(self.result_folder):
             os.makedirs(self.result_folder)
         self.files = {}

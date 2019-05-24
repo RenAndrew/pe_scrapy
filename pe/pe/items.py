@@ -54,8 +54,7 @@ class PeNongmoPrice(BoxingSpiderItem):		#农膜
 	@staticmethod
 	def get_non_csv_columns():
 		return ['filename', 'to_update', 'target_table', 'target_column', 'src_column', 'crawl_time', 'name']
-
-
+    
 CN_COLUMN_NAMES = {
     # basic
     'filename': '文件名',
@@ -90,16 +89,16 @@ CN_COLUMN_NAMES = {
     'factory_price': '出厂价',
 
     #塑膜价格字段
-    'price' : '价格',
-    'increase_daily' : '日涨跌',
-    'increase_to_last_week' : '较上周同期',
-    'increase_to_last_month' : '较上月同期',
-    'increase_to_last_year' : '较去年同期',
+#     'price' : '价格',
+#     'increase_daily' : '日涨跌',
+#     'increase_to_last_week' : '较上周同期',
+#     'increase_to_last_month' : '较上月同期',
+#     'increase_to_last_year' : '较去年同期',
 
-    #农膜价格
-    'price_shandong' : '价格（山东）',
-    'price_jiangsu' : '价格（江苏）',
-    'price_jingjin' : '价格（京津）',
+#     #农膜价格
+#     'price_shandong' : '价格（山东）',
+#     'price_jiangsu' : '价格（江苏）',
+#     'price_jingjin' : '价格（京津）',
 }
 
 EN_COLUMN_NAMES = {value: key for key, value in CN_COLUMN_NAMES.items()}

@@ -70,7 +70,7 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'pe.pipelines.PePipeline': 300,
+   # 'pe.pipelines.PePipeline': 300,
    'pe.pipelines.BasicPipeline' : 310,
    'pe.pipelines.CsvDumpPipeline' : 320,
 }
