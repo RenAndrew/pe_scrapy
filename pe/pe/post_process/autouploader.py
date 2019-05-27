@@ -139,20 +139,21 @@ class AutoUploader(object):
 		# print self.upload_headers
 		print 'File name is: ' + file_name
 
-		ret = requests.post(self.upload_url, data= {'upload_type' : 'APPEND'}, files=params, headers=self.upload_headers)
+		#disable real upload
+		# ret = requests.post(self.upload_url, data= {'upload_type' : 'APPEND'}, files=params, headers=self.upload_headers)
 	
 		flag = False
-		if (ret.status_code == 400):
-			print json.loads(ret.text).get('message')
-		elif (ret.status_code == 401):
-			print 'Unauthorized, please check login!'
-			print ret.text
-		elif (ret.status_code == 200):
-			print "Uploading successfully!"
-			flag = True
-		else:
-			print "Unknown Error!"
-			print ret.text
+		# if (ret.status_code == 400):
+		# 	print json.loads(ret.text).get('message')
+		# elif (ret.status_code == 401):
+		# 	print 'Unauthorized, please check login!'
+		# 	print ret.text
+		# elif (ret.status_code == 200):
+		# 	print "Uploading successfully!"
+		# 	flag = True
+		# else:
+		# 	print "Unknown Error!"
+		# 	print ret.text
 
 		file.close()
 		return flag

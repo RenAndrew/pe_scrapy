@@ -30,7 +30,7 @@ class SplashSpiderBase(SpiderBase):
 
 	#Account info
 	config = {
-		'username' : 'founder123',
+		'username' : 'CBNBFKB',
 		'password' : '123Qweasd'
 	}
 
